@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour {
         foreach (Vector2Int d in dir)
         {
             int r = 1;
-            while (r < bombRange)
+            while (r <= bombRange)
             {
                 Vector2Int grid = bomb.GridPos + d * r;
                 bool beObstucled = false;
