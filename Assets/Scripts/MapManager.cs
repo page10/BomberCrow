@@ -116,11 +116,23 @@ public class MapManager : MonoBehaviour
                 return null;
         }
     }
+    
+    public bool IsInBounds(Vector2Int position)
+    {
+        return position.x >= 0 && position.x < map.GetLength(0) && position.y >= 0 && position.y < map.GetLength(1);
+    }
+
+    public bool IsDestructible(Vector2Int position)
+    {
+        // Only snow piles and trees are destructible
+        TileType type = map[position.x, position.y].Type;
+        return type == TileType.SnowPile || type == TileType.Tree;
+    }
 
     // Call this function when snow pile or tree is destroyed
     public void ReplaceWithGround(int x, int y)
     {
-        if (map[x, y].Type == TileType.SnowPile || map[x, y].Type == TileType.Tree)
+        if (map[x, y].CanHurtByFire)
         {
             // Change the tile type to ground
             map[x, y].Type = TileType.Ground;
