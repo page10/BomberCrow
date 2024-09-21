@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapManager: {fileID: 583755628}
   mainCamera: {fileID: 1582941245}
+  playerPrefab: {fileID: 929385142751814526, guid: 160d66e2cfa56e54a9017a8c3c76f2df, type: 3}
 --- !u!4 &347866607
 Transform:
   m_ObjectHideFlags: 0

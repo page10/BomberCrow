@@ -9,17 +9,16 @@ public class MapManager : MonoBehaviour
     public GameObject treePrefab;
     public GameObject groundPrefab; // New ground prefab
     public GameObject foodPrefab; // Pine cone prefab
-    public GameObject playerPrefab;
     
     private Vector2Int foodPosition; // Stores the position of the hidden food
-    private Vector2Int playerStartPosition;
+    //private Vector2Int playerStartPosition;
 
     public int width;
     public int height;
 
     private Tile[,] map;
 
-    public void GenerateMap()
+    public void GenerateMap(out Vector2Int playerStartPosition)
     {
         map = new Tile[width, height];
         List<Vector2Int> snowPilePositions = new List<Vector2Int>(); // Track snow pile positions
@@ -70,16 +69,10 @@ public class MapManager : MonoBehaviour
             foodPosition = snowPilePositions[Random.Range(0, snowPilePositions.Count)];
             Debug.Log("Food hidden at: " + foodPosition);
         }
-        
-        PlacePlayerCharacter(playerStartPosition);
     }
     
     // Instantiate the player character at the start position
-    private void PlacePlayerCharacter(Vector2Int position) {
-        // Assuming you have a player character prefab
-        GameObject player = Instantiate(playerPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
-        player.transform.SetParent(transform);
-    }
+    
 
 // Creates an L-shaped ground area at the starting position
     private void CreateLShapedGround(int startX, int startY)
