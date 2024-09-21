@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 929385142751814521}
   - component: {fileID: 929385142751814520}
-  - component: {fileID: 8154928601199899622}
   m_Layer: 6
-  m_Name: RockPrefab
+  m_Name: FoodPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,7 +73,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: bc94943864e21704fa2443817579c636, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2396e6f1016c2ea4d9ea4673fbed5ae5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -85,20 +84,3 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &8154928601199899622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 929385142751814526}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3527c6c4335b3f44aa69e1ed9a4d0f5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Type: 1
-  CanPass: 0
-  CanHurtByFire: 0
-  HasFood: 0
-  HasItem: 0

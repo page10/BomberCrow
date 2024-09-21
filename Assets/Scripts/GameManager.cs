@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour {
 
     void CenterCamera() {
         // Calculate the center point of the map
-        float mapCenterX = mapManager.width / 2f;
+        float mapCenterX = mapManager.width / 2f - 0.5f;
         float mapCenterY = mapManager.height / 2f - 0.5f;
 
         // Set the camera's position to the center of the map
