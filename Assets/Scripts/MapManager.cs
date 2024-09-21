@@ -51,9 +51,10 @@ public class MapManager : MonoBehaviour
                     type = GetRandomTileType(); // Choose a random tile type (snow pile, tree, or ground)
                 }
 
-                map[x, y] = new Tile(type);
+                //map[x, y] = new Tile(type);
                 GameObject tileGO = InstantiateTile(type, x, y);
                 tileGO.transform.SetParent(transform);
+                map[x, y] = tileGO.GetComponent<Tile>(); //Get from GameObject, NOT create new
 
                 // Track snow pile positions
                 if (type == TileType.SnowPile)
@@ -93,9 +94,10 @@ public class MapManager : MonoBehaviour
 
     private void SetTileType(int x, int y, TileType type)
     {
-        map[x, y] = new Tile(type);
+        //map[x, y] = new Tile(type);
         GameObject tileGO = InstantiateTile(type, x, y);
         tileGO.transform.SetParent(transform);
+        map[x, y] = tileGO.GetComponent<Tile>(); //get from gameobject, not create new.
     }
 
 
@@ -141,6 +143,7 @@ public class MapManager : MonoBehaviour
             Destroy(map[x, y].gameObject); // Assuming you track the tile's GameObject
             GameObject groundTile = InstantiateTile(TileType.Ground, x, y);
             groundTile.transform.SetParent(transform);
+            map[x, y] = groundTile.GetComponent<Tile>(); //DON'T forget set new one to array.
         }
     }
 

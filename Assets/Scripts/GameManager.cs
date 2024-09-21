@@ -13,7 +13,10 @@ public class GameManager : MonoBehaviour {
     
     public float explosionDelay = 2f;   // Delay before fireball explodes
     public int maxFireballs = 1;        // Max fireballs that can be placed
-    private int currentFireballs = 0;   // Currently placed fireballs
+    //private int currentFireballs = 0;   // Currently placed fireballs
+
+    // List of fireballs. You may detonate all bombs by controller while PowerUp has been taken.
+    private List<Fireball> _currentFireBalls = new List<Fireball>();
 
     void Start() {
         // Generate the map
@@ -56,7 +59,7 @@ public class GameManager : MonoBehaviour {
         }
         
         // Fireball placement input
-        if (Input.GetKeyDown(KeyCode.Space) && currentFireballs < maxFireballs)
+        if (Input.GetKeyDown(KeyCode.Space) && _currentFireBalls.Count < maxFireballs)
         {
             PlaceFireball();
         }
@@ -68,17 +71,54 @@ public class GameManager : MonoBehaviour {
         // Check if the tile is passable and if we can place the fireball
         if (mapManager.IsMoveValid(new Vector2Int(Mathf.RoundToInt(characterPosition.x), Mathf.RoundToInt(characterPosition.y))))
         {
-            Instantiate(fireBallPrefab, characterPosition, Quaternion.identity);
+            GameObject go = Instantiate(fireBallPrefab, characterPosition, Quaternion.identity);
+            Fireball fb = go.GetComponent<Fireball>();
+            fb.Set(FireballExploded);
             Debug.Log("fireball placed at " + characterPosition);
-            currentFireballs++; // Increment the active fireball count
+            //currentFireballs++; // Increment the active fireball count
         }
         // todo 0921
     }
     
     // Call this when a fireball explodes and is removed
-    public void FireballExploded()
+    public void FireballExploded(Fireball bomb)
     {
-        currentFireballs--;
+        // Check if the tile is within bounds and if it can be destroyed
+        int bombRange = bomb.explosionRange;
+        Vector2Int[] dir = new Vector2Int[] { Vector2Int.left, Vector2Int.right, Vector2Int.up, Vector2Int.down};
+        
+        List<Vector2Int> toBeGround = new List<Vector2Int> { bomb.GridPos };
+        foreach (Vector2Int d in dir)
+        {
+            int r = 1;
+            while (r < bombRange)
+            {
+                Vector2Int grid = bomb.GridPos + d * r;
+                bool beObstucled = false;
+                if (mapManager.IsInBounds(grid))
+                {
+                    if (mapManager.IsDestructible(grid))
+                    {
+                        toBeGround.Add(grid);
+                        beObstucled = true;
+                    }
+                    // todo Handle damage to the player or enemies
+                }
+                else beObstucled = true;
+
+                if (beObstucled) break;
+                r++;
+            }
+        }
+        
+        foreach (Vector2Int g in toBeGround)
+        {
+            mapManager.ReplaceWithGround(g.x, g.y); // Destroy the tile (replace with ground)
+        }
+        
+        
+        //remove from list
+        _currentFireBalls.Remove(bomb);
     }
     
     private void MovePlayer(Vector2 direction) {

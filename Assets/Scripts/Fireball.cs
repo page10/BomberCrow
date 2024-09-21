@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Fireball : MonoBehaviour
 {
@@ -11,13 +13,19 @@ public class Fireball : MonoBehaviour
     private float timer = 0f;
     private bool isExploding = false;
 
-    private MapManager mapManager; // Reference to the map manager
-    private Vector2Int fireballPosition; // Position on the grid
+    /// <summary>
+    /// What do i do while explosive is call some method from GameManager.
+    /// </summary>
+    private Action<Fireball> _onExplosive = null;
+
+    //don't create any reference of Manager in SomeObject.
+    // private MapManager mapManager; // Reference to the map manager
+    public Vector2Int GridPos { get; private set; } // Position on the grid
 
     void Start()
     {
-        mapManager = FindObjectOfType<MapManager>(); // Find the map manager in the scene
-        fireballPosition = new Vector2Int(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.y));
+        //mapManager = FindObjectOfType<MapManager>(); // Find the map manager in the scene
+        GridPos = new Vector2Int(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.y));
     }
 
     void Update()
@@ -30,32 +38,38 @@ public class Fireball : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Init fireball's gameplay data here.
+    /// </summary>
+    /// <param name="onExplosive"></param>
+    public void Set(Action<Fireball> onExplosive)
+    {
+        _onExplosive = onExplosive;
+    }
+
     private void Explode()
     {
         isExploding = true;
 
         // Cross pattern explosion
-        HandleExplosionAt(fireballPosition);
-        HandleExplosionAt(fireballPosition + Vector2Int.right);
-        HandleExplosionAt(fireballPosition + Vector2Int.left);
-        HandleExplosionAt(fireballPosition + Vector2Int.up);
-        HandleExplosionAt(fireballPosition + Vector2Int.down);
+        _onExplosive?.Invoke(this);
 
         // After explosion, destroy the fireball object
         Destroy(gameObject);
     }
 
-    private void HandleExplosionAt(Vector2Int position)
-    {
-        // Check if the tile is within bounds and if it can be destroyed
-        if (mapManager.IsInBounds(position))
-        {
-            if (mapManager.IsDestructible(position))
-            {
-                mapManager.ReplaceWithGround(position.x, position.y); // Destroy the tile (replace with ground)
-            }
-            // todo Handle damage to the player or enemies
-        }
-    }
+    // Dependence is wrong. Map and Characters are GameManager's buddies.
+    // private void HandleExplosionAt(Vector2Int position)
+    // {
+    //     // Check if the tile is within bounds and if it can be destroyed
+    //     if (mapManager.IsInBounds(position))
+    //     {
+    //         if (mapManager.IsDestructible(position))
+    //         {
+    //             mapManager.ReplaceWithGround(position.x, position.y); // Destroy the tile (replace with ground)
+    //         }
+    //         // todo Handle damage to the player or enemies
+    //     }
+    // }
     
 }
