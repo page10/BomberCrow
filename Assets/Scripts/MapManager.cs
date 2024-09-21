@@ -170,4 +170,16 @@ public class MapManager : MonoBehaviour
             // Trigger win logic here
         }
     }
+    
+    public bool IsMoveValid(Vector2Int position) {
+        // Check if position is within bounds
+        if (position.x < 0 || position.x >= map.GetLength(0) || position.y < 0 || position.y >= map.GetLength(1)) {
+            return false;  // Out of bounds
+        }
+
+        Tile currentTile = map[position.x, position.y];
+
+        // Check if the tile is passable
+        return currentTile.CanPass;
+    }
 }
