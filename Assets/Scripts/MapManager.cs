@@ -198,4 +198,8 @@ public class MapManager : MonoBehaviour
         // Check if the tile is passable
         return currentTile.CanPass;
     }
+    
+    public TileType GetTileType(Vector2Int position) {
+        return map[position.x, position.y].Type;
+    }
 }

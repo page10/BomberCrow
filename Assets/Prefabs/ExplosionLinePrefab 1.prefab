@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 929385142751814520}
   - component: {fileID: 6829001303489021470}
   - component: {fileID: 7190062439615357681}
-  m_Layer: 6
-  m_Name: FireEffectPrefab
+  m_Layer: 3
+  m_Name: ExplosionLinePrefab 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -8,7 +8,9 @@ public class GameManager : MonoBehaviour {
     public Camera mainCamera;      // Assign the main camera in the Unity Inspector
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject fireBallPrefab;
-    public GameObject fireEffectPrefab;
+    public GameObject explosionCenterPrefab;
+    public GameObject explosionLinePrefab;  
+    public GameObject explosionEndPrefab;
     
     private GameObject character;
     
@@ -72,10 +74,11 @@ public class GameManager : MonoBehaviour {
         // Check if the tile is passable and if we can place the fireball
         if (mapManager.IsMoveValid(new Vector2Int(Mathf.RoundToInt(characterPosition.x), Mathf.RoundToInt(characterPosition.y))))
         {
-            GameObject go = Instantiate(fireBallPrefab, characterPosition, Quaternion.identity);
+            GameObject go = Instantiate(fireBallPrefab, new Vector3(characterPosition.x, characterPosition.y, -1), Quaternion.identity);
             Fireball fb = go.GetComponent<Fireball>();
             fb.Set(FireballExploded);
             Debug.Log("fireball placed at " + characterPosition);
+            _currentFireBalls.Add(fb);
             //currentFireballs++; // Increment the active fireball count
         }
         // todo 0921
@@ -84,6 +87,7 @@ public class GameManager : MonoBehaviour {
     // Call this when a fireball explodes and is removed
     public void FireballExploded(Fireball bomb)
     {
+        _currentFireBalls.Remove(bomb);
         // Check if the tile is within bounds and if it can be destroyed
         int bombRange = bomb.explosionRange;
         Vector2Int[] dir = new Vector2Int[] { Vector2Int.left, Vector2Int.right, Vector2Int.up, Vector2Int.down};
@@ -104,23 +108,68 @@ public class GameManager : MonoBehaviour {
                         beObstucled = true;
                     }
                     // todo Handle damage to the player or enemies
+                    // Check if the crow is within the explosion range
+                    Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(character.transform.position.x), Mathf.RoundToInt(character.transform.position.y));
+                    if (crowPosition == grid)
+                    {
+                        EndGame();
+                    }
                 }
                 else beObstucled = true;
 
                 if (beObstucled) break;
                 r++;
             }
-            
-            // Check if the crow is within the explosion range
-            Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(character.transform.position.x), Mathf.RoundToInt(character.transform.position.y));
-            int distanceToCrow = Mathf.Abs(bomb.GridPos.x - crowPosition.x) + Mathf.Abs(bomb.GridPos.y - crowPosition.y);
+       }
+        
+        // Instantiate the explosion center prefab at the bomb's position
+        Instantiate(explosionCenterPrefab, bomb.transform.position + new Vector3(0, 0, -1), Quaternion.identity);
 
-            if (distanceToCrow <= bomb.explosionRange)
+        // Instantiate the explosion line and end prefabs in each direction
+        Vector2Int[] directions = new Vector2Int[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+        foreach (Vector2Int direction in directions)
+        {
+            for (int i = 1; i <= bomb.explosionRange; i++)
             {
-                // The crow is within the explosion range, end the game
-                EndGame();
+                Vector2Int gridPos = bomb.GridPos + direction * i;
+                Vector3 worldPos = new Vector3(gridPos.x, gridPos.y, -1);
+
+                // Check if the grid position is within the map bounds
+                if (!mapManager.IsInBounds(gridPos))
+                {
+                    // The grid position is outside the map bounds, skip this iteration
+                    continue;
+                }         
+    
+                // Check if the tile is a rock
+                if (mapManager.GetTileType(gridPos) == TileType.Rock)
+                {
+                    // Stop the explosion from spreading further in this direction
+                    break;
+                }
+                
+                if (i == bomb.explosionRange)
+                {
+                    // Instantiate the explosion end prefab at the end of the explosion
+                    GameObject explosionEnd = Instantiate(explosionEndPrefab, worldPos, Quaternion.identity);
+
+                    // Rotate the explosion end based on its direction
+                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    explosionEnd.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
+                }
+                else
+                {
+                    // Instantiate the explosion line prefab along the explosion
+                    GameObject explosionLine = Instantiate(explosionLinePrefab, worldPos, Quaternion.identity);
+
+                    // Rotate the explosion line based on its direction
+                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
+                }
             }
         }
+        
+        // Check if the crow is within the explosion range
         
         foreach (Vector2Int g in toBeGround)
         {
