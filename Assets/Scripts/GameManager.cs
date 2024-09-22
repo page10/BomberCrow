@@ -25,7 +25,6 @@ public class GameManager : MonoBehaviour {
     private Character _character;
     private Vector2 CrowGridPos => _character ? mapManager.PositionInGrid(_character.transform.position) : Vector2.zero;
     
-    public float explosionDelay = 2f;   // Delay before fireball explodes
     public int maxFireballs = 1;        // Max fireballs that can be placed
     //private int currentFireballs = 0;   // Currently placed fireballs
 

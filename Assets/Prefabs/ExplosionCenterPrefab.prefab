@@ -110,7 +110,7 @@ MonoBehaviour:
     - {fileID: 1960144569077839259, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
     - {fileID: -3175918128893223224, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
     - {fileID: -6771676236449578781, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
-    frameRate: 0.2
+    frameRate: 0.1
   updateByMono: 0
 --- !u!114 &-8959586555720550779
 MonoBehaviour:

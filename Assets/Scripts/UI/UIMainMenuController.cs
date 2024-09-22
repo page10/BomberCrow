@@ -26,13 +26,13 @@ namespace UI
             mainMenuManager.PLayCutscene();
         }
 
-        private static void OnQuitButtonClicked()
-        {
-            // commented in once built. Responsible for quitting the game
-            // Application.Quit();
-        
-            // Reserved for testing in play mode
-            UnityEditor.EditorApplication.isPlaying = false;
-        }
+private static void OnQuitButtonClicked()
+{
+    #if UNITY_EDITOR
+    UnityEditor.EditorApplication.isPlaying = false;
+    #else
+    Application.Quit();
+    #endif
+}
     }
 }

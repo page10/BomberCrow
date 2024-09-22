@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   anim: {fileID: 6834643483844774335}
-  moveSpeed: 3
+  moveSpeed: 1.5
   bodySize: {x: 1, y: 1}
   crossWall: 0
   killRange: 1
