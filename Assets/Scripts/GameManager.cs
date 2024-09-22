@@ -2,17 +2,25 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     public MapManager mapManager;  // Assign this in the Unity Inspector
     public Camera mainCamera;      // Assign the main camera in the Unity Inspector
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject fireBallPrefab;
+    [SerializeField] private GameObject enemyPrefab; //todo 先就一种把
     public GameObject explosionCenterPrefab;
     public GameObject explosionLinePrefab;  
     public GameObject explosionEndPrefab;
+    public Text timerText;  
     
-    private GameObject character;
+    private float gameDuration = 120f;  // Game duration in seconds
+    private float timeRemaining;        // Time remaining in the game
+    
+    private Character _character;
+    private Vector2 CrowGridPos => _character ? mapManager.PositionInGrid(_character.transform.position) : Vector2.zero;
     
     public float explosionDelay = 2f;   // Delay before fireball explodes
     public int maxFireballs = 1;        // Max fireballs that can be placed
@@ -21,13 +29,33 @@ public class GameManager : MonoBehaviour {
     // List of fireballs. You may detonate all bombs by controller while PowerUp has been taken.
     private List<Fireball> _currentFireBalls = new List<Fireball>();
 
+    // 当前正在进行的爆炸
+    private List<Explosion> _explosions = new List<Explosion>();
+    private List<Explosion> _toRemoveExplosions = new List<Explosion>(); //要删除的
+
+    private List<Enemy> _enemies = new List<Enemy>();
+
+
+    private enum BattleState
+    {
+        Playing,
+        Over
+    }
+
+    private BattleState _state = BattleState.Playing;
+    
+    
     void Start() {
         // Generate the map
         mapManager.GenerateMap(out Vector2Int playerStartPosition);
         PlacePlayerCharacter(playerStartPosition);
+        CreateEnemies(6);
 
         // Center the camera
         CenterCamera();
+        
+        // Initialize the timer when the game starts
+        timeRemaining = gameDuration;
     }
 
     void CenterCamera() {
@@ -40,25 +68,131 @@ public class GameManager : MonoBehaviour {
     }
     
     private void PlacePlayerCharacter(Vector2Int position) {
-        character = Instantiate(playerPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
-        character.transform.SetParent(transform);
+        GameObject go = Instantiate(playerPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
+        _character = go.GetComponent<Character>();
+        _character.TryMove(MoveDirection.Down, 0);
+        _character.transform.SetParent(transform);
+    }
 
+    private void CreateEnemies(int enemyCount)
+    {
+        //筛选出格子
+        List<Vector2Int> eg = mapManager.EmptyGrids();
+        if (_character)
+        {
+            Vector2Int cg = mapManager.PositionInGrid(_character.transform.position);
+            for (int i = -3; i <= 3; i++)
+            for (int j = -3; j <= 3; j++)
+            {
+                Vector2Int g = new Vector2Int(i + cg.x, j + cg.y);
+                eg.Remove(g);  //玩家周围3格内不刷怪
+            }
+        }
+        while (eg.Count > enemyCount) eg.RemoveAt(Random.Range(0, eg.Count));
+        //刷怪
+        foreach (Vector2Int g in eg) PlaceEnemyCharacter(g);
+    }
+    
+    private void PlaceEnemyCharacter(Vector2Int position) {
+        GameObject go = Instantiate(enemyPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
+        Enemy e = go.GetComponent<Enemy>();
+        e.TryMove(MoveDirection.Down, 0);
+        List<MoveDirection> md = new List<MoveDirection> { MoveDirection.Up ,MoveDirection.Down,MoveDirection.Left, MoveDirection.Right};
+        e.movingDir = md[Random.Range(0, md.Count)];
+        e.transform.SetParent(transform);
+        _enemies.Add(e);
     }
 
     private void Update()
     {
-        HandleInput();
+        float delta = Time.deltaTime;
+
+        // Countdown logic
+        if (timeRemaining > 0)
+        {
+            timeRemaining -= delta;
+            if (timeRemaining <= 0)
+            {
+                timeRemaining = 0;
+                OnTimerEnd();
+            }
+        }
+        timerText.text = GetFormattedTime();
+        
+        if (_state == BattleState.Playing)
+        {
+            //所有list线对于所在的格子继续造成伤害
+            foreach (Explosion explosion in _explosions)
+            {
+                if (!explosion) continue;
+                ExplosionEffect(explosion);
+                explosion.DoUpdate(delta);
+            }
+            //统一处理要删除的爆破线，这是list的缺陷，只能这么做
+            foreach (Explosion explosion in _toRemoveExplosions)
+            {
+                _explosions.Remove(explosion);
+                if (explosion && explosion.gameObject) Destroy(explosion.gameObject);
+            }
+        
+            //所有的敌人行动
+            foreach (Enemy enemy in _enemies)
+            {
+                if (enemy.Dead) continue;
+                //尝试移动
+                if (!MoveCharacter(enemy, enemy.movingDir, delta))
+                {
+                    //todo 如果敌人移动失败，就会运行ai，现在先随机换个方向
+                    List<MoveDirection> md = new List<MoveDirection>
+                        { MoveDirection.Up, MoveDirection.Down, MoveDirection.Left, MoveDirection.Right };
+                    md.Remove(enemy.movingDir);
+                    enemy.movingDir = md[Random.Range(0, md.Count)];
+                }
+                //尝试杀死玩家
+                if (Mathf.Abs(Vector2.Distance(enemy.transform.position, _character.transform.position)) < enemy.killRange)
+                {
+                    EndGame();
+                }
+            }
+
+            HandleInput();
+        }else if (_state == BattleState.Over)
+        {
+            //todo 真的结束了，判断角色是否删除了自己， 危险，但临时有效，之后要改的
+            if (!_character || !_character.gameObject)
+            {
+                ScenesManager.Instance.LoadGameOver();
+                
+            }
+        }
     }
     
-    private void HandleInput() {
-        if (Input.GetKeyDown(KeyCode.W)) {  // Move up
-            MovePlayer(Vector2.up);
-        } else if (Input.GetKeyDown(KeyCode.S)) {  // Move down
-            MovePlayer(Vector2.down);
-        } else if (Input.GetKeyDown(KeyCode.A)) {  // Move left
-            MovePlayer(Vector2.left);
-        } else if (Input.GetKeyDown(KeyCode.D)) {  // Move right
-            MovePlayer(Vector2.right);
+    private void OnTimerEnd()
+    {
+        Debug.Log("Time's up! You lose.");
+        // Trigger the lose condition, maybe stop player movement, and display a loss screen
+        EndGame(false);
+    }
+    
+    // Function to display the remaining time
+    public string GetFormattedTime()
+    {
+        int minutes = Mathf.FloorToInt(timeRemaining / 60);
+        int seconds = Mathf.FloorToInt(timeRemaining % 60);
+        return string.Format("{0:00}:{1:00}", minutes, seconds);
+    }
+    
+    private void HandleInput()
+    {
+        float delta = Time.deltaTime;
+        if (Input.GetKey(KeyCode.W)) {  // Move up
+            MoveCharacter(_character, MoveDirection.Up, delta);
+        } else if (Input.GetKey(KeyCode.S)) {  // Move down
+            MoveCharacter(_character, MoveDirection.Down, delta);
+        } else if (Input.GetKey(KeyCode.A)) {  // Move left
+            MoveCharacter(_character, MoveDirection.Left, delta);
+        } else if (Input.GetKey(KeyCode.D)) {  // Move right
+            MoveCharacter(_character, MoveDirection.Right, delta);
         }
         
         // Fireball placement input
@@ -69,15 +203,16 @@ public class GameManager : MonoBehaviour {
     }
     
     private void PlaceFireball() {
-        Vector2 characterPosition = character.transform.position; // Get crow's position
+        //Vector2 characterPosition = _character.transform.position; // Get crow's position
         //todo incorrect position.
         // Check if the tile is passable and if we can place the fireball
-        if (mapManager.IsMoveValid(new Vector2Int(Mathf.RoundToInt(characterPosition.x), Mathf.RoundToInt(characterPosition.y))))
+        if (mapManager.IsMoveValid(CrowGridPos))
         {
-            GameObject go = Instantiate(fireBallPrefab, new Vector3(characterPosition.x, characterPosition.y, -1), Quaternion.identity);
+            Vector2 ballPos = mapManager.CenterOfPosition(CrowGridPos); //炸弹放在乌鸦所在单元格中心
+            GameObject go = Instantiate(fireBallPrefab, new Vector3(ballPos.x, ballPos.y, -1), Quaternion.identity);
             Fireball fb = go.GetComponent<Fireball>();
             fb.Set(FireballExploded);
-            Debug.Log("fireball placed at " + characterPosition);
+            Debug.Log("fireball placed at " + ballPos);
             _currentFireBalls.Add(fb);
             //currentFireballs++; // Increment the active fireball count
         }
@@ -107,24 +242,25 @@ public class GameManager : MonoBehaviour {
                         toBeGround.Add(grid);
                         beObstucled = true;
                     }
-                    // todo Handle damage to the player or enemies
-                    // Check if the crow is within the explosion range
-                    Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(character.transform.position.x), Mathf.RoundToInt(character.transform.position.y));
-                    if (crowPosition == grid)
-                    {
-                        EndGame();
-                    }
+                    // todo Handle damage to the player or enemies DONT do this here!
+                    // // Check if the crow is within the explosion range
+                    // Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(_character.transform.position.x), Mathf.RoundToInt(_character.transform.position.y));
+                    // if (crowPosition == grid)
+                    // {
+                    //     EndGame();
+                    // }
                 }
                 else beObstucled = true;
 
                 if (beObstucled) break;
                 r++;
             }
-       }
+        }
         
         // Instantiate the explosion center prefab at the bomb's position
-        Instantiate(explosionCenterPrefab, bomb.transform.position + new Vector3(0, 0, -1), Quaternion.identity);
-
+        //Instantiate(explosionCenterPrefab, bomb.transform.position + new Vector3(0, 0, -1), Quaternion.identity);
+        CreateExplosion(explosionCenterPrefab, bomb.GridPos, Vector2Int.zero);
+        
         // Instantiate the explosion line and end prefabs in each direction
         Vector2Int[] directions = new Vector2Int[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         foreach (Vector2Int direction in directions)
@@ -132,7 +268,7 @@ public class GameManager : MonoBehaviour {
             for (int i = 1; i <= bomb.explosionRange; i++)
             {
                 Vector2Int gridPos = bomb.GridPos + direction * i;
-                Vector3 worldPos = new Vector3(gridPos.x, gridPos.y, -1);
+                //Vector3 worldPos = new Vector3(gridPos.x, gridPos.y, -1);
 
                 // Check if the grid position is within the map bounds
                 if (!mapManager.IsInBounds(gridPos))
@@ -150,21 +286,23 @@ public class GameManager : MonoBehaviour {
                 
                 if (i == bomb.explosionRange)
                 {
-                    // Instantiate the explosion end prefab at the end of the explosion
-                    GameObject explosionEnd = Instantiate(explosionEndPrefab, worldPos, Quaternion.identity);
-
-                    // Rotate the explosion end based on its direction
-                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    explosionEnd.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
+                    CreateExplosion(explosionEndPrefab, gridPos, direction);
+                    // // Instantiate the explosion end prefab at the end of the explosion
+                    // GameObject explosionEnd = Instantiate(explosionEndPrefab, worldPos, Quaternion.identity);
+                    //
+                    // // Rotate the explosion end based on its direction
+                    // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    // explosionEnd.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
                 }
                 else
                 {
-                    // Instantiate the explosion line prefab along the explosion
-                    GameObject explosionLine = Instantiate(explosionLinePrefab, worldPos, Quaternion.identity);
-
-                    // Rotate the explosion line based on its direction
-                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
+                    CreateExplosion(explosionLinePrefab, gridPos, direction);
+                    // // Instantiate the explosion line prefab along the explosion
+                    // GameObject explosionLine = Instantiate(explosionLinePrefab, worldPos, Quaternion.identity);
+                    //
+                    // // Rotate the explosion line based on its direction
+                    // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    // explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
                 }
             }
         }
@@ -180,23 +318,228 @@ public class GameManager : MonoBehaviour {
         //remove from list
         _currentFireBalls.Remove(bomb);
     }
-    
-    private void EndGame()
-    {
-        // game over logic here
-        Debug.Log("Game Over");
-        ScenesManager.Instance.LoadGameOver();
-    }
-    
-    private void MovePlayer(Vector2 direction) {
-        Vector2Int currentPos = new Vector2Int(Mathf.RoundToInt(character.transform.position.x), Mathf.RoundToInt(character.transform.position.y));
-        Vector2Int newPos = currentPos + new Vector2Int(Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
 
-        if (mapManager.IsMoveValid(newPos)) {  // Check if move is valid
-            character.transform.position = new Vector3(newPos.x, newPos.y, -1);  
+    /// <summary>
+    /// 创建爆炸
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="grid"></param>
+    /// <param name="direction"></param>
+    private void CreateExplosion(GameObject model, Vector2Int grid, Vector2Int direction)
+    {
+        Vector3 pos = mapManager.CenterOfPosition(grid);
+        GameObject explosionLine = Instantiate(model, pos, Quaternion.identity);
+
+        Explosion exp = explosionLine.GetComponent<Explosion>();
+        exp.Set(grid, e =>
+        {
+            _toRemoveExplosions.Add(e);
+        });
+        // Rotate the explosion line based on its direction
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle ));
+        
+        _explosions.Add(exp);
+    }
+
+    /// <summary>
+    /// 爆炸的效果
+    /// </summary>
+    /// <param name="explosion"></param>
+    private void ExplosionEffect(Explosion explosion)
+    {
+        if (HitByExplosion(_character, explosion))
+        {
+            EndGame();
         }
         
-        // Check if the player has won
-        mapManager.CheckWinCondition(newPos.x, newPos.y);
+        bool hasBomb = BombHere(explosion.CoverGrid, out Fireball bombHere);
+        if (hasBomb)
+        {
+            FireballExploded(bombHere);
+        }
+        
+        //如果有敌人，就杀死了
+        List<Enemy> toRemove = new List<Enemy>();
+        foreach (Enemy enemy in _enemies)
+        {
+            if (enemy.Dead) continue;
+            if (HitByExplosion(enemy, explosion))
+            {
+                //todo enemy 挂了
+                enemy.Kill();
+                toRemove.Add(enemy);
+            }
+        }
+        foreach (Enemy enemy in toRemove) _enemies.Remove(enemy);
+        
+    }
+
+    private bool HitByExplosion(Character cha, Explosion exp)
+    {
+        Vector2 ePos = mapManager.CenterOfPosition(exp.CoverGrid);
+        Vector2 cPos = cha.transform.position;
+        float hitRangeX = (cha == _character ? 0.4f : 0.5f) * MapManager.TileSize.x + cha.bodySize.x / 2.00f;
+        if (Mathf.Abs(cPos.x - ePos.x) > hitRangeX) return false;
+        float hitRangeY = (cha == _character ? 0.4f : 0.5f) * MapManager.TileSize.y + cha.bodySize.y / 2.00f;
+        if (Mathf.Abs(cPos.y - ePos.y) > hitRangeY) return false;
+        return true;
+    }
+    
+    private void EndGame(bool win = false)
+    {
+        if (win)
+        {
+            Debug.Log("You win!");
+            ScenesManager.Instance.LoadWinning();
+        }
+        else
+        {
+            _character.Kill();
+            _state = BattleState.Over;
+        }
+    }
+    
+    /// <summary>
+    /// 返回是否移动成功
+    /// </summary>
+    /// <param name="mover"></param>
+    /// <param name="dir"></param>
+    /// <param name="delta"></param>
+    /// <returns></returns>
+    private bool MoveCharacter(Character mover, MoveDirection dir, float delta)
+    {
+        if (!mover) return false;
+        if (dir == MoveDirection.None) return true;
+
+        const float squeezeRate = 0.1f;
+        float checkOffsetX = squeezeRate * MapManager.TileSize.x * 0.5f;
+        float checkOffsetY = squeezeRate * MapManager.TileSize.y * 0.5f;
+        float bodyX = mover.bodySize.x * 0.5f;
+        float bodyY = mover.bodySize.y * 0.5f;
+        Vector3 dest = mover.TryMove(dir, delta);
+        //根据方向获得具体的要检查的点，如果2个点都可过，则移动生效，这里的squeezeRate是一个挤过去的倍率，是为了手感
+        Vector2[] checkPoints = new Vector2[] { Vector2.zero ,Vector2.zero};
+        switch (dir)
+        {
+            case MoveDirection.Up:
+                checkPoints = new Vector2[]
+                {
+                    dest + Vector3.up * bodyY + Vector3.left * checkOffsetX,
+                    dest + Vector3.up * bodyY + Vector3.right * checkOffsetX
+                };
+                dest = new Vector3(mapManager.CenterOfPosition(dest).x, dest.y, dest.z);
+                break;
+            case MoveDirection.Down:
+                checkPoints = new Vector2[]
+                {
+                    dest + Vector3.down * bodyY + Vector3.left * checkOffsetX,
+                    dest + Vector3.down * bodyY + Vector3.right * checkOffsetX
+                };
+                dest = new Vector3(mapManager.CenterOfPosition(dest).x, dest.y, dest.z);
+                break;
+            case MoveDirection.Left:
+                checkPoints = new Vector2[]
+                {
+                    dest + Vector3.left * bodyX + Vector3.up * checkOffsetY,
+                    dest + Vector3.left * bodyX + Vector3.down * checkOffsetY
+                };
+                dest = new Vector3(dest.x, mapManager.CenterOfPosition(dest).y, dest.z);
+                break;
+            case MoveDirection.Right:
+                checkPoints = new Vector2[]
+                {
+                    dest + Vector3.right * bodyX + Vector3.up * checkOffsetY,
+                    dest + Vector3.right * bodyX + Vector3.down * checkOffsetY
+                };
+                dest = new Vector3(dest.x, mapManager.CenterOfPosition(dest).y, dest.z);
+                break;
+        }
+
+        Vector2Int targetGrid = mapManager.PositionInGrid(dest);
+        bool canMove = !ObstacleByFireball(mover.transform.position, targetGrid, dir); //向着炸弹不能走
+        //没有向炸弹，那就看看地形让不让走
+        if (canMove)
+            foreach (Vector2 point in checkPoints)
+            {
+                if (!mapManager.IsMoveValid(point))
+                {
+                    canMove = false;
+                    break;
+                }
+            }
+
+        //能走才走，否则不鸟
+        if (canMove)
+        {
+            mover.transform.position = dest;
+            //只有玩家的角色能走进去
+            if (mover == _character && mapManager.CheckWinCondition(dest))
+            {
+                //Debug.Log("Player picked up the food! Game won.");
+                //ScenesManager.Instance.LoadWinning();
+                EndGame(true);
+            }
+
+            return true;
+        }
+
+        return false;
+        
+        // Vector2Int currentPos = new Vector2Int(Mathf.RoundToInt(_character.transform.position.x), Mathf.RoundToInt(_character.transform.position.y));
+        // Vector2Int newPos = currentPos + new Vector2Int(Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
+
+        // if (mapManager.IsMoveValid(newPos)) {  // Check if move is valid
+        //     _character.transform.position = new Vector3(newPos.x, newPos.y, -1);  
+        // }
+        //
+        // // Check if the player has won
+        // mapManager.CheckWinCondition(newPos.x, newPos.y);
+    }
+
+    /// <summary>
+    /// 以enterDirection向checkGrid行动，是否会被其中的炸弹阻挡而不能走
+    /// </summary>
+    /// <param name="guyPos">行动的角色的当前世界位置</param>
+    /// <param name="checkGrid">炸弹的单元格</param>
+    /// <param name="enterDirection">行动的角色想要行动的方向</param>
+    /// <returns>true有炸弹不能走；false能走</returns>
+    private bool ObstacleByFireball(Vector2 guyPos, Vector2Int checkGrid, MoveDirection enterDirection)
+    {
+        bool has = BombHere(checkGrid, out Fireball fireball);
+        if (!has) return false;
+        Vector2 bc = mapManager.CenterOfPosition(checkGrid);
+        Vector2 dir = (bc - guyPos).normalized;
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+        {
+            return (dir.x > 0 && enterDirection == MoveDirection.Right) ||
+                   (dir.x < 0 && enterDirection == MoveDirection.Left);
+        }
+        else
+        {
+            return (dir.y > 0 && enterDirection == MoveDirection.Up) ||
+                   (dir.y < 0 && enterDirection == MoveDirection.Down);
+        }
+    }
+
+    /// <summary>
+    /// pos所在的单元格是否是个炸弹
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    private bool BombHere(Vector2 pos, out Fireball fireball)
+    {
+        fireball = null;
+        Vector2Int g = mapManager.PositionInGrid(pos);
+        foreach (Fireball fb in _currentFireBalls)
+        {
+            if (g == fb.GridPos)
+            {
+                fireball = fb;
+                return true;
+            }
+        }
+
+        return false;
     }
 }

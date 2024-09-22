@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 929385142751814521}
   - component: {fileID: 929385142751814520}
-  - component: {fileID: 6829001303489021470}
-  - component: {fileID: 7190062439615357681}
+  - component: {fileID: 2446444244465794004}
+  - component: {fileID: -8959586555720550779}
   m_Layer: 3
   m_Name: ExplosionCenterPrefab
   m_TagString: Untagged
@@ -72,8 +72,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1326649295
+  m_SortingLayer: 3
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 985ae5428aef73741a5a14774c56b2eb, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -86,7 +86,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6829001303489021470
+--- !u!114 &2446444244465794004
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -95,12 +95,24 @@ MonoBehaviour:
   m_GameObject: {fileID: 929385142751814526}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58bfb58ec61517c419eef1b38d061177, type: 3}
+  m_Script: {fileID: 11500000, guid: 5d43a7c1d3fb5f741a8854b5ee7b1c0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionDelay: 2
-  explosionRange: 2
---- !u!114 &7190062439615357681
+  sprite: {fileID: 929385142751814520}
+  data:
+  - id: Explosive
+    sprites:
+    - {fileID: -6199642483750245169, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
+    - {fileID: -8283804931705764354, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
+    - {fileID: -4016695435015510347, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
+    - {fileID: -755595364959066024, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
+    - {fileID: 4542206938597643258, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
+    - {fileID: 1960144569077839259, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
+    - {fileID: -3175918128893223224, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
+    - {fileID: -6771676236449578781, guid: e047a80dd0eff124dbb3b43a58792cb9, type: 3}
+    frameRate: 0.2
+  updateByMono: 0
+--- !u!114 &-8959586555720550779
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -109,8 +121,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 929385142751814526}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58bfb58ec61517c419eef1b38d061177, type: 3}
+  m_Script: {fileID: 11500000, guid: 7eb08867f1da59548aa92f2a6b16b8d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosionDelay: 2
-  explosionRange: 2
+  anim: {fileID: 2446444244465794004}

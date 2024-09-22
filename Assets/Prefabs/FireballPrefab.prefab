@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 929385142751814521}
   - component: {fileID: 929385142751814520}
   - component: {fileID: 6829001303489021470}
-  - component: {fileID: 7190062439615357681}
   m_Layer: 3
   m_Name: FireballPrefab
   m_TagString: Untagged
@@ -72,8 +71,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1627538723
+  m_SortingLayer: 2
   m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: db76ee979148c3642aa16715156d4883, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -87,20 +86,6 @@ SpriteRenderer:
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &6829001303489021470
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 929385142751814526}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58bfb58ec61517c419eef1b38d061177, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  explosionDelay: 2
-  explosionRange: 2
---- !u!114 &7190062439615357681
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
