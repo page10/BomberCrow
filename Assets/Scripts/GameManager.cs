@@ -19,6 +19,9 @@ public class GameManager : MonoBehaviour {
     private float gameDuration = 120f;  // Game duration in seconds
     private float timeRemaining;        // Time remaining in the game
     
+    private int snowPileBlastedCount = 0;  // Number of snow piles blasted by the player
+    private int enemySlaughteredCount = 0; // Number of enemies killed by the player
+    
     private Character _character;
     private Vector2 CrowGridPos => _character ? mapManager.PositionInGrid(_character.transform.position) : Vector2.zero;
     
@@ -311,6 +314,13 @@ public class GameManager : MonoBehaviour {
         
         foreach (Vector2Int g in toBeGround)
         {
+            // Check if the tile is a snow pile before replacing it with ground
+            if (mapManager.GetTileType(g) == TileType.SnowPile)
+            {
+                snowPileBlastedCount++;
+                ScoreManager.Instance.AddSnowPileBlasted(1);
+            }
+            
             mapManager.ReplaceWithGround(g.x, g.y); // Destroy the tile (replace with ground)
         }
         
@@ -366,6 +376,10 @@ public class GameManager : MonoBehaviour {
             if (enemy.Dead) continue;
             if (HitByExplosion(enemy, explosion))
             {
+                // Increment the enemy slaughtered count when an enemy is killed
+                enemySlaughteredCount++;
+                ScoreManager.Instance.AddEnemySlaughtered(1);
+                
                 //todo enemy 挂了
                 enemy.Kill();
                 toRemove.Add(enemy);
