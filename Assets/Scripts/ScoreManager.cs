@@ -39,6 +39,13 @@ public class ScoreManager : MonoBehaviour
         fruitPicked += amount;
     }
     
+    public void ResetScore()
+    {
+        snowPileBlasted = 0;
+        enemySlaughtered = 0;
+        fruitPicked = 0;
+    }
+    
 
     public int SnowPileBlasted => snowPileBlasted;
 

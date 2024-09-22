@@ -42,6 +42,7 @@ namespace UI
         private void OnRestartButtonClicked()
         {
             ScenesManager.Instance.LoadNewGame();
+            ScoreManager.Instance.ResetScore();
         }
 
         private void OnReturnMenuButtonClicked()
