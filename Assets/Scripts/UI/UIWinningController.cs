@@ -36,11 +36,13 @@ namespace UI
         private void OnNewButtonClicked()
         {
             ScenesManager.Instance.LoadNewGame();
+            ScoreManager.Instance.ResetScore();
         }
 
         private void OnReturnMenuButtonClicked()
         {
             ScenesManager.Instance.LoadMainMenu();
+            ScoreManager.Instance.ResetScore();
         }
     }
 }

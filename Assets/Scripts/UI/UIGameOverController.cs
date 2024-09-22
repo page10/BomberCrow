@@ -48,6 +48,7 @@ namespace UI
         private void OnReturnMenuButtonClicked()
         {
             ScenesManager.Instance.LoadMainMenu();
+            ScoreManager.Instance.ResetScore();
         }
     }
 }
