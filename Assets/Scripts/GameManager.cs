@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
@@ -13,6 +14,10 @@ public class GameManager : MonoBehaviour {
     public GameObject explosionCenterPrefab;
     public GameObject explosionLinePrefab;  
     public GameObject explosionEndPrefab;
+    public Text timerText;  
+    
+    private float gameDuration = 120f;  // Game duration in seconds
+    private float timeRemaining;        // Time remaining in the game
     
     private Character _character;
     private Vector2 CrowGridPos => _character ? mapManager.PositionInGrid(_character.transform.position) : Vector2.zero;
@@ -48,6 +53,9 @@ public class GameManager : MonoBehaviour {
 
         // Center the camera
         CenterCamera();
+        
+        // Initialize the timer when the game starts
+        timeRemaining = gameDuration;
     }
 
     void CenterCamera() {
@@ -99,6 +107,18 @@ public class GameManager : MonoBehaviour {
     {
         float delta = Time.deltaTime;
 
+        // Countdown logic
+        if (timeRemaining > 0)
+        {
+            timeRemaining -= delta;
+            if (timeRemaining <= 0)
+            {
+                timeRemaining = 0;
+                OnTimerEnd();
+            }
+        }
+        timerText.text = GetFormattedTime();
+        
         if (_state == BattleState.Playing)
         {
             //所有list线对于所在的格子继续造成伤害
@@ -141,10 +161,25 @@ public class GameManager : MonoBehaviour {
             //todo 真的结束了，判断角色是否删除了自己， 危险，但临时有效，之后要改的
             if (!_character || !_character.gameObject)
             {
-                // game over logic here
-                Debug.Log("Game Over");
+                ScenesManager.Instance.LoadGameOver();
+                
             }
         }
+    }
+    
+    private void OnTimerEnd()
+    {
+        Debug.Log("Time's up! You lose.");
+        // Trigger the lose condition, maybe stop player movement, and display a loss screen
+        EndGame(false);
+    }
+    
+    // Function to display the remaining time
+    public string GetFormattedTime()
+    {
+        int minutes = Mathf.FloorToInt(timeRemaining / 60);
+        int seconds = Mathf.FloorToInt(timeRemaining % 60);
+        return string.Format("{0:00}:{1:00}", minutes, seconds);
     }
     
     private void HandleInput()
@@ -302,7 +337,7 @@ public class GameManager : MonoBehaviour {
         });
         // Rotate the explosion line based on its direction
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
+        explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle ));
         
         _explosions.Add(exp);
     }
@@ -351,11 +386,19 @@ public class GameManager : MonoBehaviour {
         return true;
     }
     
-    private void EndGame()
+    private void EndGame(bool win = false)
     {
-        _character.Kill();
-        _state = BattleState.Over;
-        
+        if (win)
+        {
+            Debug.Log("You win!");
+            ScenesManager.Instance.LoadWinning();
+        }
+        else
+        {
+            _character.Kill();
+            _state = BattleState.Over;
+        }
+
     }
     
     /// <summary>
@@ -435,7 +478,8 @@ public class GameManager : MonoBehaviour {
             if (mover == _character && mapManager.CheckWinCondition(dest))
             {
                 //Debug.Log("Player picked up the food! Game won.");
-                ScenesManager.Instance.LoadWinning();
+                //ScenesManager.Instance.LoadWinning();
+                EndGame(true);
             }
 
             return true;
