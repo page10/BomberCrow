@@ -182,7 +182,7 @@ public class MapManager : MonoBehaviour
         if (x == foodPosition.x && y == foodPosition.y)
         {
             Debug.Log("Player picked up the food! Game won.");
-            // Trigger win logic here
+            ScenesManager.Instance.LoadWinning();
         }
     }
     
