@@ -219,6 +219,20 @@ public class MapManager : MonoBehaviour
         // Check if the tile is passable
         return currentTile.CanPass;
     }
+
+    public List<Vector2Int> EmptyGrids()
+    {
+        List<Vector2Int> res = new List<Vector2Int>();
+        for (int i = 0; i < map.GetLength(0); i++)
+        for (int j = 0; j < map.GetLength(1); j++)
+        {
+            Vector2Int g = new Vector2Int(i, j);
+            if (IsMoveValid(g) && !res.Contains(g))
+                res.Add(g);
+        }
+
+        return res;
+    }
     
     public TileType GetTileType(Vector2Int position) {
         return map[position.x, position.y].Type;

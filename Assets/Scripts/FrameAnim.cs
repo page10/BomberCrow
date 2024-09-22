@@ -48,6 +48,11 @@ public class FrameAnim : MonoBehaviour
         return res;
     }
 
+    public void SetAlpha(float a)
+    {
+        sprite.color = new Color(1, 1, 1, a);
+    }
+
     public void Play(string id, bool loop, bool instantPlayOnChange = true, bool forceChangeWhileSame = false)
     {
         if (HasAnim(id, out int aIndex))

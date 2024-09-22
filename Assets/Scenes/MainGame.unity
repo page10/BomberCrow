@@ -156,6 +156,7 @@ MonoBehaviour:
   mainCamera: {fileID: 1582941245}
   playerPrefab: {fileID: 929385142751814526, guid: 160d66e2cfa56e54a9017a8c3c76f2df, type: 3}
   fireBallPrefab: {fileID: 929385142751814526, guid: e0f2c060bca5acc47ab252f02b5fd363, type: 3}
+  enemyPrefab: {fileID: 929385142751814526, guid: 0df0cf864bb5b20478990adc63145d88, type: 3}
   explosionCenterPrefab: {fileID: 929385142751814526, guid: 05f2e8cb62909a147b4259f3e55ba2b2, type: 3}
   explosionLinePrefab: {fileID: 929385142751814526, guid: 9dfb1cfff01eb6546ab37cefdc53ab82, type: 3}
   explosionEndPrefab: {fileID: 929385142751814526, guid: 941902152c5d0454189b6e3656134da3, type: 3}
