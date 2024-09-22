@@ -7,9 +7,9 @@ public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance;
     
-    private int snowPileBlasted = 0;
-    private int enemySlaughtered = 0;
-    private int fruitPicked = 0;
+    private static int snowPileBlasted = 0;
+    private static int enemySlaughtered = 0;
+    private static int fruitPicked = 0;
 
     void Awake()
     {
