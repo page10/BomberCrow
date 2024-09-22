@@ -175,7 +175,7 @@ public class MapManager : MonoBehaviour
         if (x == foodPosition.x && y == foodPosition.y)
         {
             // Instantiate food when the correct snow pile is destroyed
-            Instantiate(foodPrefab, new Vector3(x, y, 0), Quaternion.identity);
+            Instantiate(foodPrefab, new Vector3(x, y, -1), Quaternion.identity);
         }
     }
 

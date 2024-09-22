@@ -8,7 +8,6 @@ namespace UI
     {
         [SerializeField] private Button newGameButton;
         [SerializeField] private Button returnMenuButton;
-        private ScoreManager _scoreManager;
         public TextMeshProUGUI scoreText;
 
         private void Start()
@@ -22,17 +21,17 @@ namespace UI
             {
                 returnMenuButton.onClick.AddListener(OnReturnMenuButtonClicked);
             }
-
-            _scoreManager = FindObjectOfType<ScoreManager>();
-            // UpdateScoreText();
+            
+            UpdateScoreText();
         }
 
-        // private void UpdateScoreText()
-        // {
-        //     scoreText.text = "Snow pile Blasted: " + ScoreManager.SnowPileBlasted + "\n" +
-        //                      "Enemy Slaughtered: " + _scoreManager.EnemySlaughtered + "\n" +
-        //                      "Fruit Picked: " + _scoreManager.FruitPicked;
-        // }
+        private void UpdateScoreText()
+        {
+            scoreText.text = "Snow pile Blasted: " + ScoreManager.Instance.SnowPileBlasted + "\n" +
+                             "Enemy Slaughtered: " + ScoreManager.Instance.EnemySlaughtered + "\n" +
+                             "Fruit Picked: " + ScoreManager.Instance.FruitPicked;
+        }
+        
     
         private void OnNewButtonClicked()
         {

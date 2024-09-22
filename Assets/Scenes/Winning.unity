@@ -525,7 +525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   newGameButton: {fileID: 1892900562}
   returnMenuButton: {fileID: 1076013784}
-  scoreText: {fileID: 0}
+  scoreText: {fileID: 235226597}
 --- !u!1 &1076013783
 GameObject:
   m_ObjectHideFlags: 0
