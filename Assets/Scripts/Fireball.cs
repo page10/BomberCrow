@@ -68,7 +68,7 @@ public class Fireball : MonoBehaviour
     //         {
     //             mapManager.ReplaceWithGround(position.x, position.y); // Destroy the tile (replace with ground)
     //         }
-    //         // todo Handle damage to the player or enemies
+    //         
     //     }
     // }
     

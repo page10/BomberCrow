@@ -144,6 +144,7 @@ public class MapManager : MonoBehaviour
             GameObject groundTile = InstantiateTile(TileType.Ground, x, y);
             groundTile.transform.SetParent(transform);
             map[x, y] = groundTile.GetComponent<Tile>(); //DON'T forget set new one to array.
+            RevealFood(x, y); // Check if the food is revealed
         }
     }
 

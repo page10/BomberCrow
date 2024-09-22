@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour {
     public Camera mainCamera;      // Assign the main camera in the Unity Inspector
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject fireBallPrefab;
+    public GameObject fireEffectPrefab;
     
     private GameObject character;
     
@@ -109,6 +110,16 @@ public class GameManager : MonoBehaviour {
                 if (beObstucled) break;
                 r++;
             }
+            
+            // Check if the crow is within the explosion range
+            Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(character.transform.position.x), Mathf.RoundToInt(character.transform.position.y));
+            int distanceToCrow = Mathf.Abs(bomb.GridPos.x - crowPosition.x) + Mathf.Abs(bomb.GridPos.y - crowPosition.y);
+
+            if (distanceToCrow <= bomb.explosionRange)
+            {
+                // The crow is within the explosion range, end the game
+                EndGame();
+            }
         }
         
         foreach (Vector2Int g in toBeGround)
@@ -121,6 +132,12 @@ public class GameManager : MonoBehaviour {
         _currentFireBalls.Remove(bomb);
     }
     
+    private void EndGame()
+    {
+        // game over logic here
+        Debug.Log("Game Over");
+    }
+    
     private void MovePlayer(Vector2 direction) {
         Vector2Int currentPos = new Vector2Int(Mathf.RoundToInt(character.transform.position.x), Mathf.RoundToInt(character.transform.position.y));
         Vector2Int newPos = currentPos + new Vector2Int(Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
@@ -128,5 +145,8 @@ public class GameManager : MonoBehaviour {
         if (mapManager.IsMoveValid(newPos)) {  // Check if move is valid
             character.transform.position = new Vector3(newPos.x, newPos.y, -1);  
         }
+        
+        // Check if the player has won
+        mapManager.CheckWinCondition(newPos.x, newPos.y);
     }
 }

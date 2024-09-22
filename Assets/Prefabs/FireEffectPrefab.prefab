@@ -10,9 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 929385142751814521}
   - component: {fileID: 929385142751814520}
-  - component: {fileID: -367920438707177024}
+  - component: {fileID: 6829001303489021470}
+  - component: {fileID: 7190062439615357681}
   m_Layer: 6
-  m_Name: GroundPrefab
+  m_Name: FireEffectPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 079be73c000ef744c9a8f145b8841bef, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ab555551df3f3d047bcd59c241bc4b9e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -85,7 +86,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-367920438707177024
+--- !u!114 &6829001303489021470
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,11 +95,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 929385142751814526}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3527c6c4335b3f44aa69e1ed9a4d0f5c, type: 3}
+  m_Script: {fileID: 11500000, guid: 58bfb58ec61517c419eef1b38d061177, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Type: 3
-  CanPass: 1
-  CanHurtByFire: 0
-  HasFood: 0
-  HasItem: 0
+  explosionDelay: 2
+  explosionRange: 2
+--- !u!114 &7190062439615357681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929385142751814526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58bfb58ec61517c419eef1b38d061177, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  explosionDelay: 2
+  explosionRange: 2

@@ -156,6 +156,7 @@ MonoBehaviour:
   mainCamera: {fileID: 1582941245}
   playerPrefab: {fileID: 929385142751814526, guid: 160d66e2cfa56e54a9017a8c3c76f2df, type: 3}
   fireBallPrefab: {fileID: 929385142751814526, guid: e0f2c060bca5acc47ab252f02b5fd363, type: 3}
+  fireEffectPrefab: {fileID: 929385142751814526, guid: 05f2e8cb62909a147b4259f3e55ba2b2, type: 3}
   explosionDelay: 2
   maxFireballs: 1
 --- !u!4 &347866607
@@ -167,7 +168,7 @@ Transform:
   m_GameObject: {fileID: 347866605}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.177309, y: 2.439481, z: 0.051494494}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
