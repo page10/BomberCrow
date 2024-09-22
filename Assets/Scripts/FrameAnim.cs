@@ -34,9 +34,9 @@ public class FrameAnim : MonoBehaviour
     /// </summary>
     /// <param name="delta"></param>
     /// <returns>if it is looped</returns>
-    private bool DoUpdate(float delta)
+    public bool DoUpdate(float delta)
     {
-        if (!Current.Valid) return true;
+        if (!Current.Valid || !sprite || !gameObject) return true;
 
         int inTick = Mathf.FloorToInt(_elapsed / Current.frameRate);
         bool res = inTick >= Current.sprites.Length;
@@ -80,6 +80,8 @@ public class FrameAnim : MonoBehaviour
     public void Pause()=> _playing = false;
 
     public void Resume() => _playing = true;
+
+    public void DoLoop(bool loop) => _doLoop = loop;
 }
 
 [Serializable]

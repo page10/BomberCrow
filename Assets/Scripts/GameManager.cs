@@ -22,6 +22,11 @@ public class GameManager : MonoBehaviour {
     // List of fireballs. You may detonate all bombs by controller while PowerUp has been taken.
     private List<Fireball> _currentFireBalls = new List<Fireball>();
 
+    // 当前正在进行的爆炸
+    private List<Explosion> _explosions = new List<Explosion>();
+    private List<Explosion> _toRemoveExplosions = new List<Explosion>(); //要删除的
+    
+    
     void Start() {
         // Generate the map
         mapManager.GenerateMap(out Vector2Int playerStartPosition);
@@ -49,6 +54,22 @@ public class GameManager : MonoBehaviour {
 
     private void Update()
     {
+        float delta = Time.deltaTime;
+        
+        //所有list线对于所在的格子继续造成伤害
+        foreach (Explosion explosion in _explosions)
+        {
+            if (!explosion) continue;
+            ExplosionEffect(explosion);
+            explosion.DoUpdate(delta);
+        }
+        //统一处理要删除的爆破线，这是list的缺陷，只能这么做
+        foreach (Explosion explosion in _toRemoveExplosions)
+        {
+            _explosions.Remove(explosion);
+            if (explosion && explosion.gameObject) Destroy(explosion.gameObject);
+        }
+
         HandleInput();
     }
     
@@ -112,13 +133,13 @@ public class GameManager : MonoBehaviour {
                         toBeGround.Add(grid);
                         beObstucled = true;
                     }
-                    // todo Handle damage to the player or enemies
-                    // Check if the crow is within the explosion range
-                    Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(_character.transform.position.x), Mathf.RoundToInt(_character.transform.position.y));
-                    if (crowPosition == grid)
-                    {
-                        EndGame();
-                    }
+                    // todo Handle damage to the player or enemies DONT do this here!
+                    // // Check if the crow is within the explosion range
+                    // Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(_character.transform.position.x), Mathf.RoundToInt(_character.transform.position.y));
+                    // if (crowPosition == grid)
+                    // {
+                    //     EndGame();
+                    // }
                 }
                 else beObstucled = true;
 
@@ -128,8 +149,9 @@ public class GameManager : MonoBehaviour {
         }
         
         // Instantiate the explosion center prefab at the bomb's position
-        Instantiate(explosionCenterPrefab, bomb.transform.position + new Vector3(0, 0, -1), Quaternion.identity);
-
+        //Instantiate(explosionCenterPrefab, bomb.transform.position + new Vector3(0, 0, -1), Quaternion.identity);
+        CreateExplosion(explosionCenterPrefab, bomb.GridPos, Vector2Int.zero);
+        
         // Instantiate the explosion line and end prefabs in each direction
         Vector2Int[] directions = new Vector2Int[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         foreach (Vector2Int direction in directions)
@@ -137,7 +159,7 @@ public class GameManager : MonoBehaviour {
             for (int i = 1; i <= bomb.explosionRange; i++)
             {
                 Vector2Int gridPos = bomb.GridPos + direction * i;
-                Vector3 worldPos = new Vector3(gridPos.x, gridPos.y, -1);
+                //Vector3 worldPos = new Vector3(gridPos.x, gridPos.y, -1);
 
                 // Check if the grid position is within the map bounds
                 if (!mapManager.IsInBounds(gridPos))
@@ -155,21 +177,23 @@ public class GameManager : MonoBehaviour {
                 
                 if (i == bomb.explosionRange)
                 {
-                    // Instantiate the explosion end prefab at the end of the explosion
-                    GameObject explosionEnd = Instantiate(explosionEndPrefab, worldPos, Quaternion.identity);
-
-                    // Rotate the explosion end based on its direction
-                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    explosionEnd.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
+                    CreateExplosion(explosionEndPrefab, gridPos, direction);
+                    // // Instantiate the explosion end prefab at the end of the explosion
+                    // GameObject explosionEnd = Instantiate(explosionEndPrefab, worldPos, Quaternion.identity);
+                    //
+                    // // Rotate the explosion end based on its direction
+                    // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    // explosionEnd.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
                 }
                 else
                 {
-                    // Instantiate the explosion line prefab along the explosion
-                    GameObject explosionLine = Instantiate(explosionLinePrefab, worldPos, Quaternion.identity);
-
-                    // Rotate the explosion line based on its direction
-                    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
+                    CreateExplosion(explosionLinePrefab, gridPos, direction);
+                    // // Instantiate the explosion line prefab along the explosion
+                    // GameObject explosionLine = Instantiate(explosionLinePrefab, worldPos, Quaternion.identity);
+                    //
+                    // // Rotate the explosion line based on its direction
+                    // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                    // explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
                 }
             }
         }
@@ -184,6 +208,47 @@ public class GameManager : MonoBehaviour {
         
         //remove from list
         _currentFireBalls.Remove(bomb);
+    }
+
+    /// <summary>
+    /// 创建爆炸
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="grid"></param>
+    /// <param name="direction"></param>
+    private void CreateExplosion(GameObject model, Vector2Int grid, Vector2Int direction)
+    {
+        Vector3 pos = mapManager.CenterOfPosition(grid);
+        GameObject explosionLine = Instantiate(model, pos, Quaternion.identity);
+
+        Explosion exp = explosionLine.GetComponent<Explosion>();
+        exp.Set(grid, e =>
+        {
+            _toRemoveExplosions.Add(e);
+        });
+        // Rotate the explosion line based on its direction
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
+        
+        _explosions.Add(exp);
+    }
+
+    /// <summary>
+    /// 爆炸的效果
+    /// </summary>
+    /// <param name="explosion"></param>
+    private void ExplosionEffect(Explosion explosion)
+    {
+        if (CrowGridPos == explosion.CoverGrid)
+        {
+            EndGame();
+        }
+        
+        bool hasBomb = BombHere(explosion.CoverGrid, out Fireball bombHere);
+        if (hasBomb)
+        {
+            FireballExploded(bombHere);
+        }
     }
     
     private void EndGame()
@@ -239,16 +304,20 @@ public class GameManager : MonoBehaviour {
                 break;
         }
 
-        bool canMove = true;
-        foreach (Vector2 point in checkPoints)
-        {
-            if (!mapManager.IsMoveValid(point))
+        Vector2Int targetGrid = mapManager.PositionInGrid(dest);
+        bool canMove = !ObstacleByFireball(_character.transform.position, targetGrid, dir); //向着炸弹不能走
+        //没有向炸弹，那就看看地形让不让走
+        if (canMove)
+            foreach (Vector2 point in checkPoints)
             {
-                canMove = false;
-                break;
+                if (!mapManager.IsMoveValid(point))
+                {
+                    canMove = false;
+                    break;
+                }
             }
-        }
 
+        //能走才走，否则不鸟
         if (canMove)
         {
             _character.transform.position = dest;
@@ -258,9 +327,6 @@ public class GameManager : MonoBehaviour {
                 ScenesManager.Instance.LoadWinning();
             }
         }
-
-        
-
         // Vector2Int currentPos = new Vector2Int(Mathf.RoundToInt(_character.transform.position.x), Mathf.RoundToInt(_character.transform.position.y));
         // Vector2Int newPos = currentPos + new Vector2Int(Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
 
@@ -270,5 +336,51 @@ public class GameManager : MonoBehaviour {
         //
         // // Check if the player has won
         // mapManager.CheckWinCondition(newPos.x, newPos.y);
+    }
+
+    /// <summary>
+    /// 以enterDirection向checkGrid行动，是否会被其中的炸弹阻挡而不能走
+    /// </summary>
+    /// <param name="guyPos">行动的角色的当前世界位置</param>
+    /// <param name="checkGrid">炸弹的单元格</param>
+    /// <param name="enterDirection">行动的角色想要行动的方向</param>
+    /// <returns>true有炸弹不能走；false能走</returns>
+    private bool ObstacleByFireball(Vector2 guyPos, Vector2Int checkGrid, MoveDirection enterDirection)
+    {
+        bool has = BombHere(checkGrid, out Fireball fireball);
+        if (!has) return false;
+        Vector2 bc = mapManager.CenterOfPosition(checkGrid);
+        Vector2 dir = (bc - guyPos).normalized;
+        if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
+        {
+            return (dir.x > 0 && enterDirection == MoveDirection.Right) ||
+                   (dir.x < 0 && enterDirection == MoveDirection.Left);
+        }
+        else
+        {
+            return (dir.y > 0 && enterDirection == MoveDirection.Up) ||
+                   (dir.y < 0 && enterDirection == MoveDirection.Down);
+        }
+    }
+
+    /// <summary>
+    /// pos所在的单元格是否是个炸弹
+    /// </summary>
+    /// <param name="pos"></param>
+    /// <returns></returns>
+    private bool BombHere(Vector2 pos, out Fireball fireball)
+    {
+        fireball = null;
+        Vector2Int g = mapManager.PositionInGrid(pos);
+        foreach (Fireball fb in _currentFireBalls)
+        {
+            if (g == fb.GridPos)
+            {
+                fireball = fb;
+                return true;
+            }
+        }
+
+        return false;
     }
 }
