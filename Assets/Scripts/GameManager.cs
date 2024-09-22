@@ -398,7 +398,6 @@ public class GameManager : MonoBehaviour {
             _character.Kill();
             _state = BattleState.Over;
         }
-
     }
     
     /// <summary>

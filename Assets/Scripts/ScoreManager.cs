@@ -5,30 +5,44 @@ using TMPro;
 
 public class ScoreManager : MonoBehaviour
 {
+    public static ScoreManager Instance;
     
-    private int _snowPileBlasted = 0;
-    private int _enemySlaughtered = 0;
-    private int _fruitPicked = 0;
+    private int snowPileBlasted = 0;
+    private int enemySlaughtered = 0;
+    private int fruitPicked = 0;
+
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
     
 
     public void AddSnowPileBlasted(int amount)
     {
-        _snowPileBlasted += amount;
+        snowPileBlasted += amount;
     }
 
     public void AddEnemySlaughtered(int amount)
     {
-        _enemySlaughtered += amount;
+        enemySlaughtered += amount;
     }
 
     public void AddFruitPicked(int amount)
     {
-        _fruitPicked += amount;
+        fruitPicked += amount;
     }
-
-    public int SnowPileBlasted => _snowPileBlasted;
-
-    public int EnemySlaughtered => _enemySlaughtered;
     
-    public int FruitPicked => _fruitPicked;
+
+    public int SnowPileBlasted => snowPileBlasted;
+
+    public int EnemySlaughtered => enemySlaughtered;
+    
+    public int FruitPicked => fruitPicked;
 }
