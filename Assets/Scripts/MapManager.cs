@@ -9,6 +9,8 @@ public class MapManager : MonoBehaviour
     public GameObject treePrefab;
     public GameObject groundPrefab; // New ground prefab
     public GameObject foodPrefab; // Pine cone prefab
+
+    public static readonly Vector2 TileSize = Vector2.one;
     
     private Vector2Int foodPosition; // Stores the position of the hidden food
     //private Vector2Int playerStartPosition;
@@ -182,10 +184,29 @@ public class MapManager : MonoBehaviour
     {
         if (x == foodPosition.x && y == foodPosition.y)
         {
+            //todo 依赖关系，这里不应该直接结束游戏的，反正这个目前也不用了，因为像素级移动这个判断是不对的
             Debug.Log("Player picked up the food! Game won.");
             ScenesManager.Instance.LoadWinning();
         }
     }
+
+    /// <summary>
+    /// 胜利判断条件
+    /// </summary>
+    /// <param name="crowPos">乌鸦位置</param>
+    /// <param name="radius">乌鸦和食物距离多少内算赢</param>
+    /// <returns></returns>
+    public bool CheckWinCondition(Vector2 crowPos, float radius = 0.1f) =>
+        Mathf.Abs(Vector2.Distance(crowPos, foodPosition)) <= radius;
+    
+    public Vector2Int PositionInGrid(Vector2 pos) => PositionInGrid(pos.x, pos.y);
+    public Vector2Int PositionInGrid(float posX, float posY)=>new Vector2Int(Mathf.RoundToInt(posX / TileSize.x), Mathf.RoundToInt(posY / TileSize.y));
+
+    public Vector2 CenterOfPosition(Vector2 pos) => CenterOfPosition(pos.x, pos.y);
+    public Vector2 CenterOfPosition(float posX, float posY)=>new Vector2(Mathf.RoundToInt(posX / TileSize.x) * TileSize.x, Mathf.RoundToInt(posY / TileSize.y) * TileSize.y);
+
+    public bool IsMoveValid(Vector2 pos) => IsMoveValid(PositionInGrid(pos));
+    public bool IsMoveValid(float x, float y) => IsMoveValid(PositionInGrid(x, y));
     
     public bool IsMoveValid(Vector2Int position) {
         // Check if position is within bounds

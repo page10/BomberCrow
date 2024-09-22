@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 929385142751814521}
   - component: {fileID: 929385142751814520}
+  - component: {fileID: 6834643483844774335}
+  - component: {fileID: 5474081131536843671}
   m_Layer: 6
   m_Name: PlayerPrefab
   m_TagString: Untagged
@@ -84,3 +86,53 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &6834643483844774335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929385142751814526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43a7c1d3fb5f741a8854b5ee7b1c0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprite: {fileID: 929385142751814520}
+  data:
+  - id: Down
+    sprites:
+    - {fileID: 21300000, guid: 7e0f343752f139d4f9f4f95fa7c3124d, type: 3}
+    - {fileID: 21300000, guid: a8667212faf994d468fe89c1f599f82b, type: 3}
+    frameRate: 0.2
+  - id: Up
+    sprites:
+    - {fileID: 21300000, guid: 059536e3d9d0dfe4c985505b3fc9c7a8, type: 3}
+    - {fileID: 21300000, guid: 8dcb6732ab995024eb01955aa4ee222a, type: 3}
+    frameRate: 0.2
+  - id: Left
+    sprites:
+    - {fileID: 21300000, guid: 260827c1bb22f49489d8b25ec695252f, type: 3}
+    - {fileID: 21300000, guid: fc259e4ee1d27184ea4a3820149cc69b, type: 3}
+    frameRate: 0.2
+  - id: Right
+    sprites:
+    - {fileID: 21300000, guid: e7c38e656c827fe47a70f1422e59e817, type: 3}
+    - {fileID: 21300000, guid: 08d71fa40a0a77545a17cef8a3d112a8, type: 3}
+    frameRate: 0.2
+  updateByMono: 1
+--- !u!114 &5474081131536843671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929385142751814526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c2e2663d3111058428aaf5271f88f775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 6834643483844774335}
+  moveSpeed: 5
+  bodySize: {x: 1, y: 1}

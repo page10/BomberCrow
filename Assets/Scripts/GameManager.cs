@@ -12,7 +12,8 @@ public class GameManager : MonoBehaviour {
     public GameObject explosionLinePrefab;  
     public GameObject explosionEndPrefab;
     
-    private GameObject character;
+    private Crow _character;
+    private Vector2 CrowGridPos => _character ? mapManager.PositionInGrid(_character.transform.position) : Vector2.zero;
     
     public float explosionDelay = 2f;   // Delay before fireball explodes
     public int maxFireballs = 1;        // Max fireballs that can be placed
@@ -40,9 +41,10 @@ public class GameManager : MonoBehaviour {
     }
     
     private void PlacePlayerCharacter(Vector2Int position) {
-        character = Instantiate(playerPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
-        character.transform.SetParent(transform);
-
+        GameObject go = Instantiate(playerPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
+        _character = go.GetComponent<Crow>();
+        _character.TryMove(MoveDirection.Down, 0);
+        _character.transform.SetParent(transform);
     }
 
     private void Update()
@@ -50,15 +52,17 @@ public class GameManager : MonoBehaviour {
         HandleInput();
     }
     
-    private void HandleInput() {
-        if (Input.GetKeyDown(KeyCode.W)) {  // Move up
-            MovePlayer(Vector2.up);
-        } else if (Input.GetKeyDown(KeyCode.S)) {  // Move down
-            MovePlayer(Vector2.down);
-        } else if (Input.GetKeyDown(KeyCode.A)) {  // Move left
-            MovePlayer(Vector2.left);
-        } else if (Input.GetKeyDown(KeyCode.D)) {  // Move right
-            MovePlayer(Vector2.right);
+    private void HandleInput()
+    {
+        float delta = Time.deltaTime;
+        if (Input.GetKey(KeyCode.W)) {  // Move up
+            MovePlayer(MoveDirection.Up, delta);
+        } else if (Input.GetKey(KeyCode.S)) {  // Move down
+            MovePlayer(MoveDirection.Down, delta);
+        } else if (Input.GetKey(KeyCode.A)) {  // Move left
+            MovePlayer(MoveDirection.Left, delta);
+        } else if (Input.GetKey(KeyCode.D)) {  // Move right
+            MovePlayer(MoveDirection.Right, delta);
         }
         
         // Fireball placement input
@@ -69,15 +73,16 @@ public class GameManager : MonoBehaviour {
     }
     
     private void PlaceFireball() {
-        Vector2 characterPosition = character.transform.position; // Get crow's position
+        //Vector2 characterPosition = _character.transform.position; // Get crow's position
         //todo incorrect position.
         // Check if the tile is passable and if we can place the fireball
-        if (mapManager.IsMoveValid(new Vector2Int(Mathf.RoundToInt(characterPosition.x), Mathf.RoundToInt(characterPosition.y))))
+        if (mapManager.IsMoveValid(CrowGridPos))
         {
-            GameObject go = Instantiate(fireBallPrefab, new Vector3(characterPosition.x, characterPosition.y, -1), Quaternion.identity);
+            Vector2 ballPos = mapManager.CenterOfPosition(CrowGridPos); //炸弹放在乌鸦所在单元格中心
+            GameObject go = Instantiate(fireBallPrefab, new Vector3(ballPos.x, ballPos.y, -1), Quaternion.identity);
             Fireball fb = go.GetComponent<Fireball>();
             fb.Set(FireballExploded);
-            Debug.Log("fireball placed at " + characterPosition);
+            Debug.Log("fireball placed at " + ballPos);
             _currentFireBalls.Add(fb);
             //currentFireballs++; // Increment the active fireball count
         }
@@ -109,7 +114,7 @@ public class GameManager : MonoBehaviour {
                     }
                     // todo Handle damage to the player or enemies
                     // Check if the crow is within the explosion range
-                    Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(character.transform.position.x), Mathf.RoundToInt(character.transform.position.y));
+                    Vector2Int crowPosition = new Vector2Int(Mathf.RoundToInt(_character.transform.position.x), Mathf.RoundToInt(_character.transform.position.y));
                     if (crowPosition == grid)
                     {
                         EndGame();
@@ -120,7 +125,7 @@ public class GameManager : MonoBehaviour {
                 if (beObstucled) break;
                 r++;
             }
-       }
+        }
         
         // Instantiate the explosion center prefab at the bomb's position
         Instantiate(explosionCenterPrefab, bomb.transform.position + new Vector3(0, 0, -1), Quaternion.identity);
@@ -187,15 +192,83 @@ public class GameManager : MonoBehaviour {
         Debug.Log("Game Over");
     }
     
-    private void MovePlayer(Vector2 direction) {
-        Vector2Int currentPos = new Vector2Int(Mathf.RoundToInt(character.transform.position.x), Mathf.RoundToInt(character.transform.position.y));
-        Vector2Int newPos = currentPos + new Vector2Int(Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
+    private void MovePlayer(MoveDirection dir, float delta) {
+        if (!_character || dir == MoveDirection.None) return;
 
-        if (mapManager.IsMoveValid(newPos)) {  // Check if move is valid
-            character.transform.position = new Vector3(newPos.x, newPos.y, -1);  
+        const float squeezeRate = 0.1f;
+        float checkOffsetX = squeezeRate * MapManager.TileSize.x * 0.5f;
+        float checkOffsetY = squeezeRate * MapManager.TileSize.y * 0.5f;
+        float bodyX = _character.bodySize.x * 0.5f;
+        float bodyY = _character.bodySize.y * 0.5f;
+        Vector3 dest = _character.TryMove(dir, delta);
+        //根据方向获得具体的要检查的点，如果2个点都可过，则移动生效，这里的squeezeRate是一个挤过去的倍率，是为了手感
+        Vector2[] checkPoints = new Vector2[] { Vector2.zero ,Vector2.zero};
+        switch (dir)
+        {
+            case MoveDirection.Up:
+                checkPoints = new Vector2[]
+                {
+                    dest + Vector3.up * bodyY + Vector3.left * checkOffsetX,
+                    dest + Vector3.up * bodyY + Vector3.right * checkOffsetX
+                };
+                dest = new Vector3(mapManager.CenterOfPosition(dest).x, dest.y, dest.z);
+                break;
+            case MoveDirection.Down:
+                checkPoints = new Vector2[]
+                {
+                    dest + Vector3.down * bodyY + Vector3.left * checkOffsetX,
+                    dest + Vector3.down * bodyY + Vector3.right * checkOffsetX
+                };
+                dest = new Vector3(mapManager.CenterOfPosition(dest).x, dest.y, dest.z);
+                break;
+            case MoveDirection.Left:
+                checkPoints = new Vector2[]
+                {
+                    dest + Vector3.left * bodyX + Vector3.up * checkOffsetY,
+                    dest + Vector3.left * bodyX + Vector3.down * checkOffsetY
+                };
+                dest = new Vector3(dest.x, mapManager.CenterOfPosition(dest).y, dest.z);
+                break;
+            case MoveDirection.Right:
+                checkPoints = new Vector2[]
+                {
+                    dest + Vector3.right * bodyX + Vector3.up * checkOffsetY,
+                    dest + Vector3.right * bodyX + Vector3.down * checkOffsetY
+                };
+                dest = new Vector3(dest.x, mapManager.CenterOfPosition(dest).y, dest.z);
+                break;
         }
+
+        bool canMove = true;
+        foreach (Vector2 point in checkPoints)
+        {
+            if (!mapManager.IsMoveValid(point))
+            {
+                canMove = false;
+                break;
+            }
+        }
+
+        if (canMove)
+        {
+            _character.transform.position = dest;
+            if (mapManager.CheckWinCondition(dest))
+            {
+                Debug.Log("Player picked up the food! Game won.");
+                ScenesManager.Instance.LoadWinning();
+            }
+        }
+
         
-        // Check if the player has won
-        mapManager.CheckWinCondition(newPos.x, newPos.y);
+
+        // Vector2Int currentPos = new Vector2Int(Mathf.RoundToInt(_character.transform.position.x), Mathf.RoundToInt(_character.transform.position.y));
+        // Vector2Int newPos = currentPos + new Vector2Int(Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
+
+        // if (mapManager.IsMoveValid(newPos)) {  // Check if move is valid
+        //     _character.transform.position = new Vector3(newPos.x, newPos.y, -1);  
+        // }
+        //
+        // // Check if the player has won
+        // mapManager.CheckWinCondition(newPos.x, newPos.y);
     }
 }
