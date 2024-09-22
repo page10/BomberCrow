@@ -185,6 +185,7 @@ public class GameManager : MonoBehaviour {
     {
         // game over logic here
         Debug.Log("Game Over");
+        ScenesManager.Instance.LoadGameOver();
     }
     
     private void MovePlayer(Vector2 direction) {
