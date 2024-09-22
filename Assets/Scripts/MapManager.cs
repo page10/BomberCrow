@@ -129,8 +129,10 @@ public class MapManager : MonoBehaviour
     public bool IsDestructible(Vector2Int position)
     {
         // Only snow piles and trees are destructible
-        TileType type = map[position.x, position.y].Type;
-        return type == TileType.SnowPile || type == TileType.Tree;
+        // TileType type = map[position.x, position.y].Type;
+        // return type == TileType.SnowPile || type == TileType.Tree;
+        //
+        return map[position.x, position.y].CanHurtByFire;
     }
 
     // Call this function when snow pile or tree is destroyed

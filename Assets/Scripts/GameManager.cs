@@ -243,6 +243,10 @@ public class GameManager : MonoBehaviour {
                     if (mapManager.IsDestructible(grid))
                     {
                         toBeGround.Add(grid);
+                        
+                    }
+                    else if (mapManager.GetTileType(grid) == TileType.Rock)
+                    {
                         beObstucled = true;
                     }
                     // todo Handle damage to the player or enemies DONT do this here!
