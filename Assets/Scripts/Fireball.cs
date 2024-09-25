@@ -9,7 +9,7 @@ using UnityEngine.Serialization;
 public class Fireball : MonoBehaviour
 {
     public float explosionDelay = 2f; // Time before explosion
-    public int explosionRange = 2; // Explosion range (cross pattern)
+    //public int explosionRange = 2; // Explosion range (cross pattern)
     private float timer = 0f;
     private bool isExploding = false;
 

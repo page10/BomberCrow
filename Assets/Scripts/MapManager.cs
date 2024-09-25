@@ -9,10 +9,14 @@ public class MapManager : MonoBehaviour
     public GameObject treePrefab;
     public GameObject groundPrefab; // New ground prefab
     public GameObject foodPrefab; // Pine cone prefab
+    public GameObject shoesPrefab;
+    public GameObject bombAdderPrefab;
+    public GameObject pineOilPrefab;
 
     public static readonly Vector2 TileSize = Vector2.one;
     
     private Vector2Int foodPosition; // Stores the position of the hidden food
+    private List<Item> items = new List<Item>(); // Stores the items
     //private Vector2Int playerStartPosition;
 
     public int width;
@@ -72,6 +76,44 @@ public class MapManager : MonoBehaviour
             foodPosition = snowPilePositions[Random.Range(0, snowPilePositions.Count)];
             Debug.Log("Food hidden at: " + foodPosition);
         }
+        // Randomly select three snow piles to hide the items
+        if (snowPilePositions.Count > 3)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                Vector2Int itemPosition;
+                
+                while (true)
+                {
+                    itemPosition = snowPilePositions[Random.Range(0, snowPilePositions.Count)];
+                    if (itemPosition == foodPosition || items.Exists(item => item.GridPos == itemPosition))
+                    {
+                        continue;
+                    }
+                    break;
+                }
+
+                ItemType itemType = (ItemType) Random.Range(0, 3);
+                // Instantiate the item
+                GameObject itemGO = null;
+                // todo reveal item
+                switch (itemType)
+                {
+                    case ItemType.Shoes:
+                        itemGO = Instantiate(shoesPrefab, new Vector3(itemPosition.x, itemPosition.y, 1), Quaternion.identity);
+                        break;
+                    case ItemType.BombAdder:
+                        itemGO = Instantiate(bombAdderPrefab, new Vector3(itemPosition.x, itemPosition.y, 1), Quaternion.identity);
+                        break;
+                    case ItemType.PineOil:
+                        itemGO = Instantiate(pineOilPrefab, new Vector3(itemPosition.x, itemPosition.y, 1), Quaternion.identity);
+                        break;
+                }
+                
+                items.Add(itemGO.GetComponent<Item>());
+                Debug.Log("Item " + i + " hidden at: " + itemPosition);
+            }
+        }
     }
     
     // Instantiate the player character at the start position
@@ -128,10 +170,6 @@ public class MapManager : MonoBehaviour
 
     public bool IsDestructible(Vector2Int position)
     {
-        // Only snow piles and trees are destructible
-        // TileType type = map[position.x, position.y].Type;
-        // return type == TileType.SnowPile || type == TileType.Tree;
-        //
         return map[position.x, position.y].CanHurtByFire;
     }
 
@@ -149,6 +187,7 @@ public class MapManager : MonoBehaviour
             groundTile.transform.SetParent(transform);
             map[x, y] = groundTile.GetComponent<Tile>(); //DON'T forget set new one to array.
             RevealFood(x, y); // Check if the food is revealed
+            RevealItem(x, y); // Check if the item is revealed
         }
     }
 
@@ -179,6 +218,36 @@ public class MapManager : MonoBehaviour
             // Instantiate food when the correct snow pile is destroyed
             Instantiate(foodPrefab, new Vector3(x, y, -1), Quaternion.identity);
         }
+    }
+    
+    // Call this method when a snow pile is destroyed
+    public void RevealItem(int x, int y)
+    {
+        foreach (Item item in items)
+        {
+            if (item.GridPos.x == x && item.GridPos.y == y)
+            {
+                // Instantiate item when the correct snow pile is destroyed
+                item.gameObject.transform.position = new Vector3(x, y, -1);
+            }
+        }
+    }
+    
+    // Check if the player has picked up the item
+    public bool CheckPickUpItem(Character character, float radius = 0.1f)
+    {
+        Vector2 crowPos = character.transform.position;
+        foreach (Item item in items)
+        {
+            if (Vector2.Distance(crowPos, item.transform.position) <= radius)
+            {
+                item.Use(character);
+                items.Remove(item);
+                Destroy(item.gameObject);
+                return true;
+            }
+        }
+        return false;
     }
     
     /// <summary>

@@ -42,10 +42,3 @@ public enum TileType {
     Ground 
 }
 
-public enum ItemType {
-    PineOil,
-    PineNeedles,
-    Chili,
-    Match,
-    Strawberry
-}

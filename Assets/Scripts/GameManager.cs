@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour {
     private Character _character;
     private Vector2 CrowGridPos => _character ? mapManager.PositionInGrid(_character.transform.position) : Vector2.zero;
     
-    public int maxFireballs = 1;        // Max fireballs that can be placed
+    //public int maxFireballs = 1;        // Max fireballs that can be placed
     //private int currentFireballs = 0;   // Currently placed fireballs
 
     // List of fireballs. You may detonate all bombs by controller while PowerUp has been taken.
@@ -205,7 +205,7 @@ public class GameManager : MonoBehaviour {
         }
         
         // Fireball placement input
-        if (Input.GetKeyDown(KeyCode.Space) && _currentFireBalls.Count < maxFireballs)
+        if (Input.GetKeyDown(KeyCode.Space) && _currentFireBalls.Count < _character.BombCount)
         {
             PlaceFireball();
         }
@@ -230,7 +230,7 @@ public class GameManager : MonoBehaviour {
     {
         _currentFireBalls.Remove(bomb);
         // Check if the tile is within bounds and if it can be destroyed
-        int bombRange = bomb.explosionRange;
+        int bombRange = _character.BombRange;
         Vector2Int[] dir = new Vector2Int[] { Vector2Int.left, Vector2Int.right, Vector2Int.up, Vector2Int.down};
         
         List<Vector2Int> toBeGround = new List<Vector2Int> { bomb.GridPos };
@@ -274,7 +274,7 @@ public class GameManager : MonoBehaviour {
         Vector2Int[] directions = new Vector2Int[] { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         foreach (Vector2Int direction in directions)
         {
-            for (int i = 1; i <= bomb.explosionRange; i++)
+            for (int i = 1; i <= _character.BombRange; i++)
             {
                 Vector2Int gridPos = bomb.GridPos + direction * i;
                 //Vector3 worldPos = new Vector3(gridPos.x, gridPos.y, -1);
@@ -293,7 +293,7 @@ public class GameManager : MonoBehaviour {
                     break;
                 }
                 
-                if (i == bomb.explosionRange)
+                if (i == _character.BombRange)
                 {
                     CreateExplosion(explosionEndPrefab, gridPos, direction);
                 }
@@ -485,6 +485,12 @@ public class GameManager : MonoBehaviour {
                 //Debug.Log("Player picked up the food! Game won.");
                 //ScenesManager.Instance.LoadWinning();
                 EndGame(true);
+            }
+            
+            // pick up item
+            if (mover == _character)
+            {
+                mapManager.CheckPickUpItem(_character);
             }
 
             return true;

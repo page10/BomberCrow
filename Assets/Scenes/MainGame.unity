@@ -162,7 +162,6 @@ MonoBehaviour:
   explosionLinePrefab: {fileID: 929385142751814526, guid: 9dfb1cfff01eb6546ab37cefdc53ab82, type: 3}
   explosionEndPrefab: {fileID: 929385142751814526, guid: 941902152c5d0454189b6e3656134da3, type: 3}
   timerText: {fileID: 1033217431}
-  maxFireballs: 1
 --- !u!4 &347866607
 Transform:
   m_ObjectHideFlags: 0
@@ -256,6 +255,9 @@ MonoBehaviour:
   treePrefab: {fileID: 929385142751814526, guid: d70b1f8690fb735488d7f11683dbe9f9, type: 3}
   groundPrefab: {fileID: 929385142751814526, guid: bf4651c2c22f2d0418b5856a418e8230, type: 3}
   foodPrefab: {fileID: 929385142751814526, guid: 83641040362f21146a466c08202c951d, type: 3}
+  shoesPrefab: {fileID: 929385142751814526, guid: becd1e48c29609d4f870fda9efeb59c8, type: 3}
+  bombAdderPrefab: {fileID: 929385142751814526, guid: 2c6377570dbc99f4587f956d363fb045, type: 3}
+  pineOilPrefab: {fileID: 929385142751814526, guid: 1a441f306b0cef744917193e2a8d4f5f, type: 3}
   width: 14
   height: 10
 --- !u!4 &583755629

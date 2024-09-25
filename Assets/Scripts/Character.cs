@@ -2,12 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 //角色，其实是功能最简单的玩家角色
 public class Character : MonoBehaviour
 {
     [SerializeField] private FrameAnim anim;
-    public float moveSpeed = 5;
+    public float MoveSpeed { get; set; } = 5;
+    public int BombCount { get; set; } = 1;
+    public int BombRange { get; set; } = 2;
     public Vector2 bodySize = Vector2.one;
     
     //能否穿墙，有的敌人可以穿墙，玩家吃某个power up后也可以
@@ -39,7 +42,7 @@ public class Character : MonoBehaviour
     /// <returns></returns>
     public Vector3 TryMove(MoveDirection wishDirection, float delta)
     {
-        float moveInTick = delta * moveSpeed;
+        float moveInTick = delta * MoveSpeed;
         Vector3 meAt = transform.position;
         Vector3 dest = wishDirection switch
         {
