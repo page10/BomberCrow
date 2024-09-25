@@ -180,18 +180,7 @@ public class MapManager : MonoBehaviour
             Instantiate(foodPrefab, new Vector3(x, y, -1), Quaternion.identity);
         }
     }
-
-    // Check if the player collects the food
-    // public void CheckWinCondition(int x, int y)
-    // {
-    //     if (x == foodPosition.x && y == foodPosition.y)
-    //     {
-    //         //todo 依赖关系，这里不应该直接结束游戏的，反正这个目前也不用了，因为像素级移动这个判断是不对的
-    //         Debug.Log("Player picked up the food! Game won.");
-    //         ScenesManager.Instance.LoadWinning();
-    //     }
-    // }
-
+    
     /// <summary>
     /// 胜利判断条件
     /// </summary>
