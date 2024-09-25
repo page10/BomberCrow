@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -10,7 +11,8 @@ public class GameManager : MonoBehaviour {
     public Camera mainCamera;      // Assign the main camera in the Unity Inspector
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject fireBallPrefab;
-    [SerializeField] private GameObject enemyPrefab; //todo 先就一种把
+    [FormerlySerializedAs("enemyPrefab")] [SerializeField] private GameObject enemyPrefabFox; 
+    [FormerlySerializedAs("enemyPrefab2")] [SerializeField] private GameObject enemyPrefabOwl;
     public GameObject explosionCenterPrefab;
     public GameObject explosionLinePrefab;  
     public GameObject explosionEndPrefab;
@@ -92,10 +94,15 @@ public class GameManager : MonoBehaviour {
         }
         while (eg.Count > enemyCount) eg.RemoveAt(Random.Range(0, eg.Count));
         //刷怪
-        foreach (Vector2Int g in eg) PlaceEnemyCharacter(g);
+        foreach (Vector2Int g in eg) 
+        {
+            EnemyType type = (Random.value > 0.5f) ? EnemyType.Fox: EnemyType.Owl;
+            PlaceEnemyCharacter(g, type);
+        }
     }
     
-    private void PlaceEnemyCharacter(Vector2Int position) {
+    private void PlaceEnemyCharacter(Vector2Int position, EnemyType type) {
+        GameObject enemyPrefab = type == EnemyType.Fox ? enemyPrefabFox : enemyPrefabOwl;
         GameObject go = Instantiate(enemyPrefab, new Vector3(position.x, position.y, -1), Quaternion.identity);
         Enemy e = go.GetComponent<Enemy>();
         e.TryMove(MoveDirection.Down, 0);

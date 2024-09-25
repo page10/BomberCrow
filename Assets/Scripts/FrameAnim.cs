@@ -47,6 +47,7 @@ public class FrameAnim : MonoBehaviour
         _elapsed += delta;
         return res;
     }
+    
 
     public void SetAlpha(float a)
     {

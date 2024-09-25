@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6834643483844774335}
   - component: {fileID: 559347584479113133}
   m_Layer: 6
-  m_Name: EnemyPrefab
+  m_Name: EnemyPrefabOwl
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -75,7 +75,7 @@ SpriteRenderer:
   m_SortingLayerID: -1627538723
   m_SortingLayer: 2
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: f095d8240dee25544a40ff121c5babac, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4023891bc5c61d64a82b152ffbfbdce5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -102,23 +102,28 @@ MonoBehaviour:
   data:
   - id: Down
     sprites:
-    - {fileID: 21300000, guid: f095d8240dee25544a40ff121c5babac, type: 3}
-    - {fileID: 21300000, guid: 707ad52b827563049b8a5f665023ca25, type: 3}
+    - {fileID: 21300000, guid: 4023891bc5c61d64a82b152ffbfbdce5, type: 3}
+    - {fileID: 21300000, guid: 4023891bc5c61d64a82b152ffbfbdce5, type: 3}
     frameRate: 0.2
   - id: Up
     sprites:
-    - {fileID: 21300000, guid: 821fa7893b9e60741a7dbf504d82cdfb, type: 3}
-    - {fileID: 21300000, guid: 22780d039aead6c4aa50428f9ba8e8b3, type: 3}
+    - {fileID: 21300000, guid: 8ed94407fb43ee944b4defe403b583fe, type: 3}
+    - {fileID: 21300000, guid: 8ed94407fb43ee944b4defe403b583fe, type: 3}
     frameRate: 0.2
   - id: Left
     sprites:
-    - {fileID: 21300000, guid: f095d8240dee25544a40ff121c5babac, type: 3}
-    - {fileID: 21300000, guid: 707ad52b827563049b8a5f665023ca25, type: 3}
+    - {fileID: 21300000, guid: 4023891bc5c61d64a82b152ffbfbdce5, type: 3}
+    - {fileID: 21300000, guid: 4023891bc5c61d64a82b152ffbfbdce5, type: 3}
     frameRate: 0.2
   - id: Right
     sprites:
-    - {fileID: 21300000, guid: 821fa7893b9e60741a7dbf504d82cdfb, type: 3}
-    - {fileID: 21300000, guid: 22780d039aead6c4aa50428f9ba8e8b3, type: 3}
+    - {fileID: 21300000, guid: 8ed94407fb43ee944b4defe403b583fe, type: 3}
+    - {fileID: 21300000, guid: 8ed94407fb43ee944b4defe403b583fe, type: 3}
+    frameRate: 0.2
+  - id: Dead
+    sprites:
+    - {fileID: 21300000, guid: 47f557fd7dd8c46498e8bf3a723a5cad, type: 3}
+    - {fileID: 21300000, guid: 47f557fd7dd8c46498e8bf3a723a5cad, type: 3}
     frameRate: 0.2
   updateByMono: 1
 --- !u!114 &559347584479113133
@@ -136,6 +141,7 @@ MonoBehaviour:
   anim: {fileID: 6834643483844774335}
   moveSpeed: 1.5
   bodySize: {x: 1, y: 1}
-  crossWall: 0
+  crossWall: 1
   killRange: 1
+  type: 1
   movingDir: 0

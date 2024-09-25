@@ -64,8 +64,8 @@ public class Character : MonoBehaviour
     public void Kill()
     {
         Dead = true;
-        anim.Pause();
-        //todo 播放死亡动画
+        anim.Play("Dead", false);
+        // anim.Pause();
     }
 }
 
