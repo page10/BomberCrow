@@ -366,7 +366,7 @@ public class GameManager : MonoBehaviour {
             EndGame();
         }
         
-        bool hasBomb = BombHere(explosion.CoverGrid, out Fireball bombHere);
+        bool hasBomb = IsBombHere(explosion.CoverGrid, out Fireball bombHere);
         if (hasBomb)
         {
             FireballExploded(bombHere);
@@ -523,7 +523,7 @@ public class GameManager : MonoBehaviour {
     /// <returns>true有炸弹不能走；false能走</returns>
     private bool ObstacleByFireball(Vector2 guyPos, Vector2Int checkGrid, MoveDirection enterDirection)
     {
-        bool has = BombHere(checkGrid, out Fireball fireball);
+        bool has = IsBombHere(checkGrid, out Fireball fireball);
         if (!has) return false;
         Vector2 bc = mapManager.CenterOfPosition(checkGrid);
         Vector2 dir = (bc - guyPos).normalized;
@@ -544,7 +544,7 @@ public class GameManager : MonoBehaviour {
     /// </summary>
     /// <param name="pos"></param>
     /// <returns></returns>
-    private bool BombHere(Vector2 pos, out Fireball fireball)
+    private bool IsBombHere(Vector2 pos, out Fireball fireball)
     {
         fireball = null;
         Vector2Int g = mapManager.PositionInGrid(pos);

@@ -144,7 +144,7 @@ public class MapManager : MonoBehaviour
             map[x, y].Type = TileType.Ground;
 
             // Destroy the old tile GameObject and instantiate ground
-            Destroy(map[x, y].gameObject); // Assuming you track the tile's GameObject
+            Destroy(map[x, y].gameObject); 
             GameObject groundTile = InstantiateTile(TileType.Ground, x, y);
             groundTile.transform.SetParent(transform);
             map[x, y] = groundTile.GetComponent<Tile>(); //DON'T forget set new one to array.
