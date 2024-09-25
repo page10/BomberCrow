@@ -212,8 +212,6 @@ public class GameManager : MonoBehaviour {
     }
     
     private void PlaceFireball() {
-        //Vector2 characterPosition = _character.transform.position; // Get crow's position
-        //todo incorrect position.
         // Check if the tile is passable and if we can place the fireball
         if (mapManager.IsMoveValid(CrowGridPos))
         {
@@ -225,7 +223,6 @@ public class GameManager : MonoBehaviour {
             _currentFireBalls.Add(fb);
             //currentFireballs++; // Increment the active fireball count
         }
-        // todo 0921
     }
     
     // Call this when a fireball explodes and is removed
@@ -271,7 +268,6 @@ public class GameManager : MonoBehaviour {
         }
         
         // Instantiate the explosion center prefab at the bomb's position
-        //Instantiate(explosionCenterPrefab, bomb.transform.position + new Vector3(0, 0, -1), Quaternion.identity);
         CreateExplosion(explosionCenterPrefab, bomb.GridPos, Vector2Int.zero);
         
         // Instantiate the explosion line and end prefabs in each direction
@@ -300,22 +296,10 @@ public class GameManager : MonoBehaviour {
                 if (i == bomb.explosionRange)
                 {
                     CreateExplosion(explosionEndPrefab, gridPos, direction);
-                    // // Instantiate the explosion end prefab at the end of the explosion
-                    // GameObject explosionEnd = Instantiate(explosionEndPrefab, worldPos, Quaternion.identity);
-                    //
-                    // // Rotate the explosion end based on its direction
-                    // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    // explosionEnd.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
                 }
                 else
                 {
                     CreateExplosion(explosionLinePrefab, gridPos, direction);
-                    // // Instantiate the explosion line prefab along the explosion
-                    // GameObject explosionLine = Instantiate(explosionLinePrefab, worldPos, Quaternion.identity);
-                    //
-                    // // Rotate the explosion line based on its direction
-                    // float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-                    // explosionLine.transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 180));
                 }
             }
         }
@@ -333,8 +317,6 @@ public class GameManager : MonoBehaviour {
             
             mapManager.ReplaceWithGround(g.x, g.y); // Destroy the tile (replace with ground)
         }
-        
-        
         //remove from list
         _currentFireBalls.Remove(bomb);
     }
@@ -507,18 +489,8 @@ public class GameManager : MonoBehaviour {
 
             return true;
         }
-
         return false;
         
-        // Vector2Int currentPos = new Vector2Int(Mathf.RoundToInt(_character.transform.position.x), Mathf.RoundToInt(_character.transform.position.y));
-        // Vector2Int newPos = currentPos + new Vector2Int(Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
-
-        // if (mapManager.IsMoveValid(newPos)) {  // Check if move is valid
-        //     _character.transform.position = new Vector3(newPos.x, newPos.y, -1);  
-        // }
-        //
-        // // Check if the player has won
-        // mapManager.CheckWinCondition(newPos.x, newPos.y);
     }
 
     /// <summary>
@@ -544,6 +516,23 @@ public class GameManager : MonoBehaviour {
             return (dir.y > 0 && enterDirection == MoveDirection.Up) ||
                    (dir.y < 0 && enterDirection == MoveDirection.Down);
         }
+        // Check if an explosion is happening at the grid position
+        if (IsExplosionHere(checkGrid))
+        {
+            return true;
+        }
+    }
+    
+    private bool IsExplosionHere(Vector2Int grid)
+    {
+        foreach (Explosion explosion in _explosions)
+        {
+            if (explosion.CoverGrid == grid)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>
