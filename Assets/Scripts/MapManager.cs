@@ -96,7 +96,6 @@ public class MapManager : MonoBehaviour
                 ItemType itemType = (ItemType) Random.Range(0, 3);
                 // Instantiate the item
                 GameObject itemGO = null;
-                // todo reveal item
                 switch (itemType)
                 {
                     case ItemType.Shoes:
