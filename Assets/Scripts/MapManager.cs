@@ -109,8 +109,9 @@ public class MapManager : MonoBehaviour
                         itemGO = Instantiate(pineOilPrefab, new Vector3(itemPosition.x, itemPosition.y, 0), Quaternion.identity);
                         break;
                 }
-                
-                items.Add(itemGO.GetComponent<Item>());
+                Item tempItem = itemGO.GetComponent<Item>();
+                tempItem.GridPos = itemPosition;
+                items.Add(tempItem);
                 itemGO.SetActive(false);
                 Debug.Log("Item " + i + " hidden at: " + itemPosition);
             }
