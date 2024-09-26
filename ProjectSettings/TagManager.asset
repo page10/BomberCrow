@@ -47,6 +47,9 @@ TagManager:
   - name: Character
     uniqueID: 2667428573
     locked: 0
+  - name: Items
+    uniqueID: 1323629755
+    locked: 0
   - name: Explosions
     uniqueID: 1326649295
     locked: 0

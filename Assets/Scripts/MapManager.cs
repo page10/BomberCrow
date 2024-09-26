@@ -100,17 +100,18 @@ public class MapManager : MonoBehaviour
                 switch (itemType)
                 {
                     case ItemType.Shoes:
-                        itemGO = Instantiate(shoesPrefab, new Vector3(itemPosition.x, itemPosition.y, 1), Quaternion.identity);
+                        itemGO = Instantiate(shoesPrefab, new Vector3(itemPosition.x, itemPosition.y, 0), Quaternion.identity);
                         break;
                     case ItemType.BombAdder:
-                        itemGO = Instantiate(bombAdderPrefab, new Vector3(itemPosition.x, itemPosition.y, 1), Quaternion.identity);
+                        itemGO = Instantiate(bombAdderPrefab, new Vector3(itemPosition.x, itemPosition.y, 0), Quaternion.identity);
                         break;
                     case ItemType.PineOil:
-                        itemGO = Instantiate(pineOilPrefab, new Vector3(itemPosition.x, itemPosition.y, 1), Quaternion.identity);
+                        itemGO = Instantiate(pineOilPrefab, new Vector3(itemPosition.x, itemPosition.y, 0), Quaternion.identity);
                         break;
                 }
                 
                 items.Add(itemGO.GetComponent<Item>());
+                itemGO.SetActive(false);
                 Debug.Log("Item " + i + " hidden at: " + itemPosition);
             }
         }
@@ -227,8 +228,7 @@ public class MapManager : MonoBehaviour
         {
             if (item.GridPos.x == x && item.GridPos.y == y)
             {
-                // Instantiate item when the correct snow pile is destroyed
-                item.gameObject.transform.position = new Vector3(x, y, -1);
+                item.gameObject.SetActive(true);
             }
         }
     }
