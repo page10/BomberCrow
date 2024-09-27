@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 929385142751814521}
   - component: {fileID: 929385142751814520}
   - component: {fileID: 8154928601199899622}
+  - component: {fileID: 813847348636207590}
   m_Layer: 6
   m_Name: RockPrefab
   m_TagString: Untagged
@@ -102,3 +103,34 @@ MonoBehaviour:
   CanHurtByFire: 0
   HasFood: 0
   HasItem: 0
+--- !u!114 &813847348636207590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929385142751814526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
+  m_ComponentVersion: 1
+  m_HasRenderer: 1
+  m_UseRendererSilhouette: 1
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_ApplyToSortingLayers: 000000008fc34e46ddbafd9ebbfce44ecf0f134f
+  m_ShapePath:
+  - {x: -0.40015027, y: -0.35673732, z: 0}
+  - {x: -0.30898306, y: 0.40883282, z: 0}
+  - {x: 0.22649848, y: 0.3046418, z: 0}
+  - {x: 0.43705124, y: -0.20696265, z: 0}
+  - {x: 0.19427292, y: -0.43412942, z: 0}
+  m_ShapePathHash: 1111814064
+  m_Mesh: {fileID: 0}
+  m_InstanceId: 29714
+  m_LocalBounds:
+    m_Center: {x: 0.018450469, y: -0.012648284, z: 0}
+    m_Extent: {x: 0.41860074, y: 0.42148113, z: 0}
