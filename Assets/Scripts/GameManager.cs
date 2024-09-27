@@ -511,16 +511,16 @@ public class GameManager : MonoBehaviour {
         bool has = IsBombHere(checkGrid, out Fireball fireball);
         if (!has) return false;
         Vector2 bc = mapManager.CenterOfPosition(checkGrid);
-        Vector2 dir = (bc - guyPos).normalized;
+        Vector2 dir = (bc - guyPos);
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
         {
-            return (dir.x > 0 && enterDirection == MoveDirection.Right) ||
-                   (dir.x < 0 && enterDirection == MoveDirection.Left);
+            return (dir.x > 0.5f && enterDirection == MoveDirection.Right) ||
+                   (dir.x < 0.5f && enterDirection == MoveDirection.Left);
         }
         else
         {
-            return (dir.y > 0 && enterDirection == MoveDirection.Up) ||
-                   (dir.y < 0 && enterDirection == MoveDirection.Down);
+            return (dir.y > 0.5f && enterDirection == MoveDirection.Up) ||
+                   (dir.y < -0.5f && enterDirection == MoveDirection.Down);
         }
         // Check if an explosion is happening at the grid position
         if (IsExplosionHere(checkGrid))
