@@ -8,7 +8,7 @@ using UnityEngine.Serialization;
 public class Character : MonoBehaviour
 {
     [SerializeField] private FrameAnim anim;
-    public float MoveSpeed { get; set; } = 5;
+    public float MoveSpeed= 5;
     public int BombCount { get; set; } = 1;
     public int BombRange { get; set; } = 2;
     public Vector2 bodySize = Vector2.one;

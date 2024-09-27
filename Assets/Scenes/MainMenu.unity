@@ -1235,9 +1235,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuUI: {fileID: 1715064740}
   cutsceneImage: {fileID: 516903521}
-  fadeInDuration: 1
-  displayDuration: 2
-  fadeOutDuration: 1
+  fadeInDuration: 0.1
+  displayDuration: 0.2
+  fadeOutDuration: 0.1
 --- !u!1 &1964952189
 GameObject:
   m_ObjectHideFlags: 0

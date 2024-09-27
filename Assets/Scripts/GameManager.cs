@@ -515,7 +515,7 @@ public class GameManager : MonoBehaviour {
         if (Mathf.Abs(dir.x) > Mathf.Abs(dir.y))
         {
             return (dir.x > 0.5f && enterDirection == MoveDirection.Right) ||
-                   (dir.x < 0.5f && enterDirection == MoveDirection.Left);
+                   (dir.x < -0.5f && enterDirection == MoveDirection.Left);
         }
         else
         {
