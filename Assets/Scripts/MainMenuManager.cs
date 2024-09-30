@@ -14,7 +14,7 @@ public class MainMenuManager : MonoBehaviour
     public Image cutsceneImage; 
     public float fadeInDuration = 1f; 
     public float displayDuration = 2f;
-    public float fadeOutDuration = 1f;
+    public float fadeOutDuration = 0.5f;
     
     private void Start()
     {
